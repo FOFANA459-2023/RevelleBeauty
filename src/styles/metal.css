@@ -1,0 +1,215 @@
+/* The metallic gold system. Metal reads as metal because of multiple
+   luminance reversals along an axis — a two-stop gradient is beige plastic.
+   Stops are measured from Logo.jpg.
+
+   THE SCARCITY RULE: one metallic element per viewport, maximum. */
+
+@layer components {
+  /* === A. METALLIC TEXT — display only, one per page (the wordmark). === */
+  .metal-text {
+    background-image: linear-gradient(
+      100deg,
+      #8a6520 0%,
+      #af7f2b 11%,
+      #e8ce94 27%,
+      #fff5df 40%,
+      #cfa456 53%,
+      #a8761f 67%,
+      #f7e7c4 84%,
+      #c0902f 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.65));
+  }
+  @supports not (background-clip: text) {
+    .metal-text {
+      color: var(--color-gold-950);
+      -webkit-text-fill-color: initial;
+      background-image: none;
+    }
+  }
+  @media (forced-colors: active) {
+    .metal-text {
+      background-image: none;
+      color: CanvasText;
+      -webkit-text-fill-color: CanvasText;
+      filter: none;
+    }
+  }
+
+  /* === B. METALLIC HAIRLINE BORDER — the workhorse. ===
+     padding-box/border-box double background: respects border-radius. */
+  .metal-border {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--color-porcelain), var(--color-porcelain)) padding-box,
+      linear-gradient(135deg, #8a6520, #f7e7c4 32%, #cfa456 52%, #fff5df 74%, #af7f2b)
+        border-box;
+  }
+  .metal-border-ivory {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--color-ivory), var(--color-ivory)) padding-box,
+      linear-gradient(135deg, #8a6520, #f7e7c4 32%, #cfa456 52%, #fff5df 74%, #af7f2b)
+        border-box;
+  }
+
+  /* === C. METALLIC RING over content that owns its background (video). === */
+  .metal-ring {
+    position: relative;
+  }
+  .metal-ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    pointer-events: none;
+    background: linear-gradient(135deg, #8a6520, #f7e7c4 30%, #cfa456 52%, #fff5df 72%, #af7f2b);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  /* === D. METALLIC SURFACE — the single primary CTA in view. ===
+     Ink text (8.15:1). NEVER white text on gold. */
+  .metal-surface {
+    background-image: linear-gradient(
+      135deg,
+      #b8862f 0%,
+      #d8b269 17%,
+      #fbefcf 33%,
+      #cfa456 50%,
+      #a8761f 68%,
+      #e8ce94 86%,
+      #c0902f 100%
+    );
+    box-shadow: var(--shadow-metal-inset);
+    color: var(--color-ink);
+  }
+
+  /* === E. SHEEN SWEEP on hover — transform-only, compositor-friendly. === */
+  .metal-sheen {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .metal-sheen::before {
+    content: '';
+    position: absolute;
+    inset: -20% -40%;
+    z-index: 1;
+    background: linear-gradient(
+      105deg,
+      transparent 42%,
+      rgba(255, 255, 255, 0.72) 50%,
+      transparent 58%
+    );
+    transform: translateX(-70%);
+    transition: transform 900ms var(--ease-couture);
+    pointer-events: none;
+  }
+  .metal-sheen:hover::before,
+  .metal-sheen:focus-visible::before {
+    transform: translateX(70%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .metal-sheen::before {
+      transition: none;
+      display: none;
+    }
+  }
+
+  /* === THE SHADE SWATCH — the only chromatic primitive on the site. ===
+     Runtime hex enters ONLY via style={{'--shade': hex}} (Tailwind v4
+     cannot generate utilities from runtime values).
+     Gloss dome: radial highlight + 3-stop body; color-mix derives the
+     highlight and a dark safety ring from the shade itself, so a pale nude
+     keeps an edge on white and a deep plum gets a bright dome. */
+  .shade-swatch {
+    position: relative;
+    inline-size: 44px;
+    block-size: 44px;
+    border-radius: 9999px;
+    flex-shrink: 0;
+    transition:
+      transform 320ms var(--ease-swatch),
+      box-shadow 240ms var(--ease-couture);
+    background-image:
+      radial-gradient(
+        120% 120% at 32% 22%,
+        rgba(255, 255, 255, 0.62) 0%,
+        rgba(255, 255, 255, 0) 44%
+      ),
+      linear-gradient(
+        158deg,
+        color-mix(in oklab, var(--shade) 86%, white) 0%,
+        var(--shade) 46%,
+        color-mix(in oklab, var(--shade) 80%, black) 100%
+      );
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--shade) 66%, black);
+  }
+  /* Duochrome: second hex splits the dome diagonally. */
+  .shade-swatch[data-duo] {
+    background-image:
+      radial-gradient(
+        120% 120% at 32% 22%,
+        rgba(255, 255, 255, 0.62) 0%,
+        rgba(255, 255, 255, 0) 44%
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in oklab, var(--shade) 88%, white) 0%,
+        var(--shade) 40%,
+        var(--shade-2) 62%,
+        color-mix(in oklab, var(--shade-2) 78%, black) 100%
+      );
+  }
+  .shade-swatch:hover {
+    transform: scale(1.12);
+  }
+  /* Selected: shape change (white gap + gold ring), not hue alone (WCAG 1.4.1). */
+  .shade-swatch[aria-checked='true'],
+  .shade-swatch[data-selected='true'] {
+    transform: scale(1.06);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--shade) 66%, black),
+      0 0 0 3px var(--color-porcelain),
+      0 0 0 4px var(--color-gold-700);
+  }
+  .shade-swatch:disabled,
+  .shade-swatch[aria-disabled='true'] {
+    filter: saturate(0.3) opacity(0.5);
+    cursor: not-allowed;
+  }
+  /* Sold-out slash — never opacity alone. */
+  .shade-swatch:disabled::after,
+  .shade-swatch[aria-disabled='true']::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      transparent 46%,
+      var(--color-ink-muted) 47%,
+      var(--color-ink-muted) 53%,
+      transparent 54%
+    );
+  }
+  @supports not (background: color-mix(in oklab, red, blue)) {
+    .shade-swatch {
+      background: var(--shade);
+      box-shadow: inset 0 0 0 1px rgba(20, 17, 14, 0.25);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shade-swatch {
+      transition: none;
+    }
+  }
+}

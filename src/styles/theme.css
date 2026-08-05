@@ -1,0 +1,179 @@
+@import 'tailwindcss';
+@import './fonts.css';
+@import './metal.css';
+
+@theme {
+  /* ---------- SURFACES: the entire site is these ---------- */
+  --color-porcelain: #ffffff; /* cards, drawers, primary surface */
+  --color-ivory: #fbf3e6; /* sampled from Logo.jpg — page ground */
+  --color-ivory-deep: #f4e9d7; /* image mats, inputs, hovered rows */
+  --color-hairline: #e7ddcb; /* 1px rules — the site's main border */
+
+  /* ---------- INK: text only ---------- */
+  --color-ink: #14110e; /* 18.81:1 on white */
+  --color-ink-soft: #4a423a; /* 9.85:1 */
+  --color-ink-muted: #6e645a; /* 5.78:1 white, 5.25 ivory — AA floor */
+
+  /* ---------- GOLD: measured from Logo.jpg ---------- */
+  --color-gold-950: #6c4f27; /* 7.54:1 — AAA text gold */
+  --color-gold-800: #9a6e1f; /* 4.54:1 — AA text gold, white bg only */
+  --color-gold-700: #af7f2b; /* focus rings, UI edges, display text >=24px */
+  --color-gold-500: #cfa456; /* DECORATIVE ONLY. Ink on it = 8.15:1 */
+  --color-gold-300: #e8ce94; /* rules, ornaments, gold-on-dark text */
+  --color-gold-100: #f7e7c4;
+  --color-gold-50: #fff5df; /* metallic highlight stop, skeleton shimmer */
+
+  /* ---------- TYPE ---------- */
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Jost Variable', 'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
+
+  --text-display-1: clamp(2.75rem, 1.55rem + 5.4vw, 6rem);
+  --text-display-1--line-height: 0.98;
+  --text-display-1--letter-spacing: 0.055em;
+  --text-display-2: clamp(2rem, 1.3rem + 3.2vw, 3.5rem);
+  --text-display-2--line-height: 1.02;
+  --text-display-2--letter-spacing: 0.05em;
+  --text-h1: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
+  --text-h1--line-height: 1.1;
+  --text-h2: clamp(1.5rem, 1.15rem + 1.4vw, 2.125rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.25;
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1.2;
+  --text-eyebrow--letter-spacing: 0.28em;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75;
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.6;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+
+  /* ---------- RADII: near-sharp is the luxury signal ---------- */
+  --radius-xs: 2px; /* cards, images, inputs */
+  --radius-sm: 4px; /* drawers, modals */
+  --radius-md: 8px; /* admin only */
+
+  /* ---------- SHADOWS: warm-tinted, never gray on ivory ---------- */
+  --shadow-hairline: 0 0 0 1px var(--color-hairline);
+  --shadow-lift: 0 1px 2px rgba(108, 79, 39, 0.05), 0 10px 28px -14px rgba(108, 79, 39, 0.14);
+  --shadow-sheet: -16px 0 48px -24px rgba(108, 79, 39, 0.22);
+  --shadow-metal-inset: inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(108, 79, 39, 0.35);
+
+  /* ---------- RHYTHM ---------- */
+  --spacing-gutter: clamp(1.25rem, 4vw, 4rem);
+  --spacing-section: clamp(4rem, 8vw, 9rem);
+
+  /* ---------- MOTION: slow and eased = expensive ---------- */
+  --ease-couture: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-swatch: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@layer base {
+  html {
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  /* Global focus: gold-700 ring (3.56:1 vs white — passes 1.4.11). */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-gold-700);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+  .on-ink :focus-visible {
+    outline-color: var(--color-gold-300);
+  }
+
+  ::selection {
+    background: var(--color-gold-100);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  /* Eyebrow: the letterspaced sans label used across nav/buttons/labels. */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: var(--text-eyebrow);
+    line-height: var(--text-eyebrow--line-height);
+    letter-spacing: var(--text-eyebrow--letter-spacing);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Display headings: Cormorant, uppercase, tracked. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* The one italic on the site: shade names. */
+  .shade-name {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  /* Ink link with animated gold underline — no blue links exist. */
+  .link-ink {
+    color: var(--color-ink);
+    text-decoration: none;
+    background-image: linear-gradient(var(--color-gold-700), var(--color-gold-700));
+    background-size: 0% 1px;
+    background-position: left calc(100% - 0.05em);
+    background-repeat: no-repeat;
+    transition: background-size 400ms var(--ease-couture);
+  }
+  .link-ink:hover,
+  .link-ink:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Skeleton: ivory block with a gold shimmer sweep (not gray pulse). */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-ivory-deep);
+    border-radius: var(--radius-xs);
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 30%,
+      var(--color-gold-50) 50%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    animation: skeleton-sweep 1.6s var(--ease-couture) infinite;
+  }
+  @keyframes skeleton-sweep {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton::after {
+      animation: none;
+    }
+  }
+}

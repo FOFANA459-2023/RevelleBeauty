@@ -1,0 +1,6 @@
+/* Self-hosted via @fontsource — no Google CDN (cache partitioning made it
+   pure cost). Cormorant Garamond = display serif; Jost = geometric sans. */
+@import '@fontsource-variable/jost/index.css';
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/500-italic.css';
+@import '@fontsource/cormorant-garamond/600.css';
