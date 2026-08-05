@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import type { VariantDTO } from '@contracts/index';
-import { useProduct } from '@/features/catalog/useCatalog';
+import { useProduct, useRelatedProducts } from '@/features/catalog/useCatalog';
+import { ProductGrid } from '@/components/product/ProductGrid';
 import { useCart } from '@/features/cart/cartStore';
 import { ShadePicker } from '@/components/shade/ShadePicker';
 import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
@@ -15,6 +16,7 @@ import { cn } from '@/lib/cn';
 export function ProductPage() {
   const { productSlug } = useParams();
   const { data: product, isPending, isError } = useProduct(productSlug ?? '');
+  const { data: related } = useRelatedProducts(productSlug ?? '');
   const [searchParams, setSearchParams] = useSearchParams();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -225,6 +227,17 @@ export function ProductPage() {
           </div>
         </div>
       </div>
+
+      {/* ---------- recommendations: content-scored on the server ---------- */}
+      {related && related.length > 0 && (
+        <section className="mt-section" aria-label="Recommended products">
+          <div className="text-center mb-10">
+            <p className="eyebrow text-gold-950">Complete the look</p>
+            <h2 className="display text-h1 text-ink mt-4">You may also like</h2>
+          </div>
+          <ProductGrid products={related} />
+        </section>
+      )}
     </div>
   );
 }

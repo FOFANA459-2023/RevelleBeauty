@@ -16,6 +16,7 @@ export const queryClient = new QueryClient({
 export const queryKeys = {
   products: (f?: Record<string, unknown>) => ['products', f ?? {}] as const,
   product: (slug: string) => ['product', slug] as const,
+  related: (slug: string) => ['related', slug] as const,
   categories: () => ['categories'] as const,
   settings: () => ['settings'] as const,
   confirmation: (sessionId: string) => ['confirmation', sessionId] as const,

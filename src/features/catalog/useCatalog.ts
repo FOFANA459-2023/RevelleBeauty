@@ -28,6 +28,15 @@ export function useProduct(slug: string) {
   });
 }
 
+export function useRelatedProducts(slug: string) {
+  return useQuery({
+    queryKey: queryKeys.related(slug),
+    queryFn: () => api.getRelatedProducts(slug),
+    staleTime: 5 * 60_000,
+    enabled: Boolean(slug),
+  });
+}
+
 export function useSettings() {
   return useQuery({
     queryKey: queryKeys.settings(),

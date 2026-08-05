@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { useCart, selectItemCount } from '@/features/cart/cartStore';
 import { cn } from '@/lib/cn';
+import logo from '@/assets/logo.jpg';
 
 const NAV = [
   { to: '/shop', label: 'Shop' },
@@ -68,8 +69,19 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
             </span>
           </button>
 
-          {/* center: wordmark */}
-          <Link to="/" aria-label="Revelle Beauty — home" className="justify-self-center">
+          {/* center: logo mark + wordmark */}
+          <Link
+            to="/"
+            aria-label="Revelle Beauty — home"
+            className="justify-self-center flex items-center gap-3"
+          >
+            <img
+              src={logo}
+              alt=""
+              width={44}
+              height={44}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full shrink-0"
+            />
             <Wordmark variant="ink" size="sm" />
           </Link>
 

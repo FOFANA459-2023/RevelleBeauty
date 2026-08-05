@@ -176,4 +176,26 @@
       animation: none;
     }
   }
+
+  /* Marquee strip: content duplicated once in markup; track slides -50%. */
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-track {
+    display: inline-flex;
+    animation: marquee-slide 28s linear infinite;
+  }
+  @keyframes marquee-slide {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
 }

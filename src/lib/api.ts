@@ -17,6 +17,7 @@ import type {
   ProductDetailDTO,
   ProductListQuery,
   ProductListResponse,
+  ProductSummaryDTO,
   ProductUpsertInput,
   StockUpdateInput,
   StoreSettingsDTO,
@@ -43,6 +44,11 @@ export const getProducts = (q: ProductListQuery = {}) => {
 
 export const getProduct = (slug: string) =>
   http<{ product: ProductDetailDTO }>(`/products/${slug}`).then((r) => r.product);
+
+export const getRelatedProducts = (slug: string, limit = 4) =>
+  http<{ products: ProductSummaryDTO[] }>(`/products/${slug}/related?limit=${limit}`).then(
+    (r) => r.products,
+  );
 
 export const getSettings = () => http<StoreSettingsDTO>('/settings');
 
