@@ -52,7 +52,7 @@ export function HomePage() {
               className="hidden lg:block absolute -left-16 top-14 w-[55%] rounded-xs opacity-90 shadow-[var(--shadow-lift)]"
             />
             <div className="relative mx-auto max-w-[440px] aspect-[3/4] rounded-xs metal-ring overflow-hidden shadow-[var(--shadow-lift)]">
-              <BrandVideo src="/media/revelle-hero.mp4" poster={campaignImage} className="h-full w-full" />
+              <BrandVideo src="/media/revelle-hero.mp4" poster="/media/revelle-hero-poster.jpg" className="h-full w-full" />
             </div>
           </div>
         </div>
@@ -113,7 +113,7 @@ export function HomePage() {
       <section className="mt-section bg-porcelain border-y border-hairline">
         <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-24 grid lg:grid-cols-2 items-center gap-12">
           <div className="mx-auto max-w-[360px] w-full aspect-[9/16] rounded-xs metal-ring overflow-hidden">
-            <BrandVideo src="/media/revelle-story.mp4" preload="none" className="h-full w-full" />
+            <BrandVideo src="/media/revelle-story.mp4" poster="/media/revelle-story-poster.jpg" preload="none" className="h-full w-full" />
           </div>
           <div className="text-center lg:text-left">
             <p className="eyebrow text-gold-950">Our philosophy</p>
