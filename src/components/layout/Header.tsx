@@ -6,8 +6,8 @@ import { cn } from '@/lib/cn';
 
 const NAV = [
   { to: '/shop', label: 'Shop' },
-  { to: '/shades', label: 'Shades' },
-  { to: '/about', label: 'About' },
+  { to: '/shop/lips', label: 'Lips' },
+  { to: '/shop/skincare', label: 'Skincare' },
   { to: '/contact', label: 'Contact' },
 ];
 
@@ -46,6 +46,7 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
               <NavLink
                 key={n.to}
                 to={n.to}
+                end={n.to === '/shop'}
                 className={({ isActive }) =>
                   cn('eyebrow link-ink py-1', isActive ? 'text-ink' : 'text-ink-soft')
                 }
@@ -102,6 +103,7 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
               <NavLink
                 key={n.to}
                 to={n.to}
+                end={n.to === '/shop'}
                 onClick={() => setMobileOpen(false)}
                 className="block eyebrow text-ink py-3"
               >
