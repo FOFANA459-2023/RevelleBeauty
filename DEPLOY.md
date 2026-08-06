@@ -8,6 +8,41 @@ deploy`), not Cloudflare Pages. The config lives in `wrangler.jsonc`.
 > links are handled by `assets.not_found_handling: "single-page-application"`
 > in `wrangler.jsonc` instead.
 
+## API token permissions (the #1 deploy failure)
+
+A token that can read your account is **not** enough to deploy. If the token
+lacks Workers write access you get:
+
+```
+A request to the Cloudflare API (/accounts/<id>/workers/services/<name>) failed.
+Authentication error [code: 10000]
+```
+
+The token needs, at minimum:
+
+| Scope | Permission | Level |
+|---|---|---|
+| Account | **Workers Scripts** | **Edit** |
+| Account | Account Settings | Read |
+
+Easiest route: **My Profile → API Tokens → Create Token → "Edit Cloudflare
+Workers" template**, which bundles these correctly. Verify before deploying:
+
+```bash
+npm run cf:check     # wrangler whoami — must list your account
+npm run deploy       # build + wrangler deploy
+```
+
+Credentials are read from a gitignored `.env` (see `.env.example`):
+
+```
+CLOUDFLARE_ACCOUNT_ID=...
+CLOUDFLARE_API_TOKEN=...
+```
+
+Wrangler picks these up automatically — never pass them on the command line
+(they end up in your shell history).
+
 ## Two ways to deploy — pick ONE
 
 **A. Cloudflare Git integration (what you're using now).**
