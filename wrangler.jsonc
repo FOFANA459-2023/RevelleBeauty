@@ -18,8 +18,10 @@
   },
 
   "vars": {
-    // Set to the deployed backend origin, e.g. "https://api.revellebeauty.com".
-    // Empty means API calls return 503 (see worker/index.js).
-    "API_ORIGIN": ""
+    // The deployed backend (Oracle Cloud VM, direct IP while there is no
+    // domain). Plain http for now — the browser<->Worker hop is still HTTPS;
+    // only the Cloudflare->VM hop is unencrypted. Switch to a Cloudflare
+    // Tunnel hostname (https) before taking real orders.
+    "API_ORIGIN": "http://161.33.163.43:4000"
   }
 }
