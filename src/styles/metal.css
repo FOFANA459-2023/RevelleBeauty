@@ -132,6 +132,9 @@
      keeps an edge on white and a deep plum gets a bright dome. */
   .shade-swatch {
     position: relative;
+    /* Spans are display:inline by default, which collapses the sized box to
+       0px and makes the swatch invisible — always render as a block box. */
+    display: inline-block;
     inline-size: 44px;
     block-size: 44px;
     border-radius: 9999px;
