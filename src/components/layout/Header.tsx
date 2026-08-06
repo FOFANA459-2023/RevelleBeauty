@@ -85,8 +85,18 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
             <Wordmark variant="ink" size="sm" />
           </Link>
 
-          {/* right: bag */}
-          <div className="justify-self-end flex items-center gap-4">
+          {/* right: account + bag */}
+          <div className="justify-self-end flex items-center gap-1 sm:gap-3">
+            <Link
+              to="/account"
+              aria-label="My account"
+              className="p-2 text-ink hover:text-ink-soft"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
+              </svg>
+            </Link>
             <button
               onClick={onOpenCart}
               aria-label={`Open bag, ${itemCount} items`}

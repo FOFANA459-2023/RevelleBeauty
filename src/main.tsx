@@ -10,6 +10,9 @@ import { HomePage } from '@/pages/shop/HomePage';
 import { CategoryPage } from '@/pages/shop/CategoryPage';
 import { ProductPage } from '@/pages/shop/ProductPage';
 import { CartPage } from '@/pages/shop/CartPage';
+import { CheckoutPage } from '@/pages/shop/CheckoutPage';
+import { LoginPage, RegisterPage } from '@/pages/shop/AuthPages';
+import { AccountPage, AccountOrderPage } from '@/pages/account/AccountPages';
 import { CheckoutSuccessPage } from '@/pages/shop/CheckoutSuccessPage';
 import { MockCheckoutPage } from '@/pages/shop/MockCheckoutPage';
 import { ShadeLibraryPage } from '@/pages/shop/ShadeLibraryPage';
@@ -53,6 +56,11 @@ const router = createBrowserRouter([
       { path: '/product/:productSlug', element: <ProductPage /> },
       { path: '/shades', element: <ShadeLibraryPage /> },
       { path: '/cart', element: <CartPage /> },
+      { path: '/checkout', element: <CheckoutPage /> },
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
+      { path: '/account', element: <AccountPage /> },
+      { path: '/account/orders/:id', element: <AccountOrderPage /> },
       { path: '/checkout/success', element: <CheckoutSuccessPage /> },
       { path: '/checkout/mock', element: <MockCheckoutPage /> },
       { path: '/checkout/cancel', element: <Navigate to="/cart" replace /> },

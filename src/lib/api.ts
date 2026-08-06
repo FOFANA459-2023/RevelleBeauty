@@ -23,6 +23,12 @@ import type {
   StoreSettingsDTO,
   VariantUpsertInput,
   AdminCategoryDTO,
+  CustomerOrderDetailDTO,
+  CustomerOrderSummaryDTO,
+  CustomerProfile,
+  ProfilePatch,
+  RegisterBody,
+  ShippingInput,
 } from '@contracts/index';
 
 /* ---------- public catalog ---------- */
@@ -57,10 +63,52 @@ export const getSettings = () => http<StoreSettingsDTO>('/settings');
 export const validateCart = (items: CartItemInput[]) =>
   http<CartValidateResponse>('/cart/validate', { method: 'POST', body: { items } });
 
-export const createCheckoutSession = (items: CartItemInput[], email?: string) =>
+export const createCheckoutSession = (
+  items: CartItemInput[],
+  shipping: ShippingInput,
+  saveAsDefault = false,
+) =>
   http<CreateCheckoutSessionResponse>('/checkout/session', {
     method: 'POST',
-    body: email ? { items, email } : { items },
+    body: { items, shipping, saveAsDefault },
+  });
+
+/* ---------- customer auth + account ---------- */
+
+export const customerRegister = (body: RegisterBody) =>
+  http<{ customer: CustomerProfile }>('/auth/register', { method: 'POST', body }).then(
+    (r) => r.customer,
+  );
+
+export const customerLogin = (email: string, password: string) =>
+  http<{ customer: CustomerProfile }>('/auth/login', {
+    method: 'POST',
+    body: { email, password },
+  }).then((r) => r.customer);
+
+export const customerLogout = () => http<{ ok: boolean }>('/auth/logout', { method: 'POST' });
+
+export const customerMe = () =>
+  http<{ customer: CustomerProfile }>('/auth/me').then((r) => r.customer);
+
+export const customerUpdateProfile = (patch: ProfilePatch) =>
+  http<{ customer: CustomerProfile }>('/auth/profile', { method: 'PATCH', body: patch }).then(
+    (r) => r.customer,
+  );
+
+export const accountOrders = () =>
+  http<{ orders: CustomerOrderSummaryDTO[] }>('/account/orders').then((r) => r.orders);
+
+export const accountOrder = (id: string) =>
+  http<{ order: CustomerOrderDetailDTO }>(`/account/orders/${id}`).then((r) => r.order);
+
+export const confirmDelivery = (orderId: string) =>
+  http<{ ok: boolean }>(`/account/orders/${orderId}/confirm-delivery`, { method: 'POST' });
+
+export const adminUpdateStage = (orderId: string, stage: string, note?: string) =>
+  http<{ ok: boolean }>(`/admin/orders/${orderId}/stage`, {
+    method: 'PATCH',
+    body: note ? { stage, note } : { stage },
   });
 
 export const getOrderConfirmation = (sessionId: string) =>

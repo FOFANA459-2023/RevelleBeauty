@@ -6,7 +6,14 @@ import * as api from '@/lib/api';
 import { queryKeys } from '@/lib/queryClient';
 import { formatCents } from '@/lib/money';
 import { cn } from '@/lib/cn';
-import type { OrderStatus } from '@contracts/index';
+import type { FulfillmentStage, OrderStatus } from '@contracts/index';
+
+const PIPELINE: { stage: FulfillmentStage; label: string }[] = [
+  { stage: 'payment_received', label: 'Payment received' },
+  { stage: 'packaged', label: 'Packaged' },
+  { stage: 'shipped', label: 'Shipped' },
+  { stage: 'delivered', label: 'Delivered' },
+];
 
 const STATUS_BADGE: Record<string, string> = {
   paid: 'border-gold-500 text-ink bg-ivory',
@@ -162,7 +169,66 @@ export function AdminOrderDetailPage() {
           </section>
 
           <section className="bg-porcelain border border-hairline rounded-md p-5">
-            <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide mb-3">Fulfillment</h2>
+            <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide mb-3">
+              Fulfillment pipeline
+            </h2>
+            <div className="flex flex-wrap gap-2 mb-5">
+              {PIPELINE.map((p) => {
+                const isCurrent = order.fulfillmentStage === p.stage;
+                return (
+                  <button
+                    key={p.stage}
+                    disabled={isCurrent}
+                    onClick={() => {
+                      void api.adminUpdateStage(order.id, p.stage).then(() => {
+                        void qc.invalidateQueries({ queryKey: queryKeys.admin.order(order.id) });
+                        void qc.invalidateQueries({ queryKey: ['admin', 'orders'] });
+                      });
+                    }}
+                    className={cn(
+                      'px-3 py-1.5 rounded-md border text-[13px] cursor-pointer',
+                      isCurrent
+                        ? 'metal-surface border-transparent font-medium cursor-default'
+                        : 'border-hairline text-ink-soft hover:bg-ivory',
+                    )}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* timeline incl. customer delivery confirmations */}
+            {order.events.length > 0 && (
+              <ul className="mb-5 border-l border-hairline ml-1 space-y-0">
+                {[...order.events].reverse().map((e) => (
+                  <li key={e.id} className="relative pl-5 pb-3 last:pb-0">
+                    <span
+                      aria-hidden="true"
+                      className="absolute -left-[4px] top-1.5 w-2 h-2 rounded-full bg-gold-500"
+                    />
+                    <p className="text-[13px] text-ink">
+                      {e.note ?? e.stage?.replace(/_/g, ' ')}
+                      <span
+                        className={cn(
+                          'ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded border',
+                          e.actor === 'customer'
+                            ? 'border-gold-700 text-gold-950 font-semibold'
+                            : 'border-hairline text-ink-muted',
+                        )}
+                      >
+                        {e.actor}
+                      </span>
+                    </p>
+                    <p className="text-[11px] text-ink-muted tabular">
+                      {new Date(e.createdAt).toLocaleString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide mb-3">Order status</h2>
             <div className="flex flex-wrap gap-2 mb-4">
               {(['paid', 'fulfilled', 'cancelled', 'refunded'] as OrderStatus[]).map((s) => (
                 <button

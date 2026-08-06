@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useCart, selectSubtotalCents } from '@/features/cart/cartStore';
 import { useSettings } from '@/features/catalog/useCatalog';
-import { createCheckoutSession, validateCart } from '@/lib/api';
-import { ApiError } from '@/lib/http';
+import { validateCart } from '@/lib/api';
 import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
 import { QuantityStepper } from '@/components/product/QuantityStepper';
 import { Button } from '@/components/ui/Button';
@@ -26,26 +25,23 @@ export function CartPage() {
   const shippingCents =
     freeThreshold != null && subtotal >= freeThreshold ? 0 : settings?.flatShippingCents ?? 0;
 
+  // Checkout is login-gated and collects shipping on its own page.
   const checkout = async () => {
     setSubmitting(true);
     setError(null);
     try {
-      const session = await createCheckoutSession(
+      const r = await validateCart(
         lines.map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
       );
-      // External URL (Stripe) or local mock page — assign either way.
-      window.location.assign(session.checkoutUrl);
-    } catch (err) {
-      if (err instanceof ApiError && err.code === 'cart_invalid') {
-        setError('Some items in your bag changed. We’ve refreshed it — please review and try again.');
-        const { lines: current } = useCart.getState();
-        const r = await validateCart(
-          current.map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
-        );
-        applyValidation(r.lines, r.removed);
-      } else {
-        setError('Something went wrong starting checkout. Please try again.');
+      applyValidation(r.lines, r.removed);
+      if (r.removed.length > 0) {
+        setError('Some items are no longer available and were removed — please review your bag.');
+        setSubmitting(false);
+        return;
       }
+      navigate('/checkout');
+    } catch {
+      setError('Something went wrong. Please try again.');
       setSubmitting(false);
     }
   };
