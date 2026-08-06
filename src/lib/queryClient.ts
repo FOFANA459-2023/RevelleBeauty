@@ -21,7 +21,6 @@ export const queryKeys = {
   settings: () => ['settings'] as const,
   confirmation: (sessionId: string) => ['confirmation', sessionId] as const,
   admin: {
-    session: () => ['admin', 'session'] as const,
     stats: () => ['admin', 'stats'] as const,
     products: (f?: Record<string, unknown>) => ['admin', 'products', f ?? {}] as const,
     product: (id: string) => ['admin', 'product', id] as const,

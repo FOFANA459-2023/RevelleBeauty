@@ -5,7 +5,6 @@ import type {
   AdminOrderSummaryDTO,
   AdminProductDetailDTO,
   AdminProductSummaryDTO,
-  AdminSession,
   AdminStatsDTO,
   CartItemInput,
   CartValidateResponse,
@@ -120,17 +119,9 @@ export const mockPay = (sessionId: string, name?: string, email?: string) =>
     body: { sessionId, ...(name ? { name } : {}), ...(email ? { email } : {}) },
   });
 
-/* ---------- admin ---------- */
-
-export const adminLogin = (email: string, password: string) =>
-  http<{ ok: boolean; expiresAt: string }>('/admin/login', {
-    method: 'POST',
-    body: { email, password },
-  });
-
-export const adminLogout = () => http<{ ok: boolean }>('/admin/logout', { method: 'POST' });
-
-export const adminMe = () => http<AdminSession>('/admin/me');
+/* ---------- admin ----------
+ * No separate admin login: admins sign in at /auth/login like everyone else,
+ * and these endpoints require the session's role to be 'admin'. */
 
 export const adminStats = () => http<AdminStatsDTO>('/admin/stats');
 

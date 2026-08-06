@@ -90,12 +90,19 @@ export function AccountPage() {
           </h1>
           <p className="mt-2 text-sm text-ink-muted">{me.email}</p>
         </div>
-        <button
-          onClick={() => logout.mutate(undefined, { onSuccess: () => navigate('/') })}
-          className="text-sm text-ink-muted link-ink cursor-pointer"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-5">
+          {me.role === 'admin' && (
+            <Link to="/admin" className="text-sm text-gold-950 link-ink">
+              Admin dashboard →
+            </Link>
+          )}
+          <button
+            onClick={() => logout.mutate(undefined, { onSuccess: () => navigate('/') })}
+            className="text-sm text-ink-muted link-ink cursor-pointer"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
 
       <GoldRule className="mt-8 mb-10" />

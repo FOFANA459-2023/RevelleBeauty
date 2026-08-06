@@ -1,24 +1,30 @@
 import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
-import { useAdminSession, useAdminLogout } from '@/features/admin/useAdmin';
+import { useCustomer, useCustomerLogout } from '@/features/auth/useCustomer';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { cn } from '@/lib/cn';
 
 /**
  * Utilitarian admin shell: borrows tokens (colors, Jost, gold focus ring),
  * rejects the couture (no Cormorant body, no metallic chrome, dense rhythm).
- * The client guard is UX only — every /api/admin route enforces auth itself.
+ * The client guard is UX only — every /api/admin route enforces role=admin
+ * on the server itself.
  */
 export function AdminLayout() {
-  const { data, isPending, isError } = useAdminSession();
-  const logout = useAdminLogout();
+  const { data: me, isPending, isError } = useCustomer();
+  const logout = useCustomerLogout();
   const navigate = useNavigate();
   const location = useLocation();
 
   if (isPending) {
     return <div className="min-h-dvh bg-ivory grid place-items-center text-sm text-ink-muted">Loading…</div>;
   }
-  if (isError || !data) {
-    return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
+  // Not signed in: send to the one shared login, then come back here.
+  if (isError || !me) {
+    return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+  // Signed in but not an admin: the dashboard does not exist for you.
+  if (me.role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -52,7 +58,7 @@ export function AdminLayout() {
             View store ↗
           </a>
           <button
-            onClick={() => logout.mutate(undefined, { onSuccess: () => navigate('/admin/login') })}
+            onClick={() => logout.mutate(undefined, { onSuccess: () => navigate('/') })}
             className="w-full text-left px-3 py-2 text-ink-soft hover:bg-ivory rounded-md cursor-pointer"
           >
             Sign out

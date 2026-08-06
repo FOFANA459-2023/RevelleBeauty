@@ -28,7 +28,18 @@ export function LoginPage() {
         className="mt-10 space-y-5"
         onSubmit={(e) => {
           e.preventDefault();
-          login.mutate({ email, password }, { onSuccess: () => navigate(next, { replace: true }) });
+          login.mutate(
+            { email, password },
+            {
+              onSuccess: (customer) => {
+                // Admins land on the dashboard unless they asked for a
+                // specific page; customers keep the normal flow.
+                const dest =
+                  customer.role === 'admin' && !params.get('next') ? '/admin' : next;
+                navigate(dest, { replace: true });
+              },
+            },
+          );
         }}
       >
         <label className={labelCls}>

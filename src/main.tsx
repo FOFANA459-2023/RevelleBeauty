@@ -22,9 +22,6 @@ import { AboutPage, ContactPage, NotFoundPage } from '@/pages/shop/StaticPages';
 const AdminLayout = lazy(() =>
   import('@/layouts/AdminLayout').then((m) => ({ default: m.AdminLayout })),
 );
-const AdminLoginPage = lazy(() =>
-  import('@/pages/admin/AdminLoginPage').then((m) => ({ default: m.AdminLoginPage })),
-);
 const AdminProductListPage = lazy(() =>
   import('@/pages/admin/AdminProductListPage').then((m) => ({ default: m.AdminProductListPage })),
 );
@@ -72,10 +69,8 @@ const router = createBrowserRouter([
       { path: '*', element: <NotFoundPage /> },
     ],
   },
-  {
-    path: '/admin/login',
-    element: <Suspense fallback={fallback}><AdminLoginPage /></Suspense>,
-  },
+  // One login for everyone — the old admin sign-in URL forwards to it.
+  { path: '/admin/login', element: <Navigate to="/login?next=/admin/products" replace /> },
   {
     path: '/admin',
     element: <Suspense fallback={fallback}><AdminLayout /></Suspense>,

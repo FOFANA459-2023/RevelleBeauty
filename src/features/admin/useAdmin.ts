@@ -1,33 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryClient';
 import * as api from '@/lib/api';
 import { ApiError } from '@/lib/http';
 
-export function useAdminSession() {
-  return useQuery({
-    queryKey: queryKeys.admin.session(),
-    queryFn: api.adminMe,
-    retry: false,
-    staleTime: 60_000,
-  });
-}
-
-export function useAdminLogin() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      api.adminLogin(email, password),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.admin.session() }),
-  });
-}
-
-export function useAdminLogout() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: api.adminLogout,
-    onSuccess: () => qc.clear(),
-  });
-}
+// Admin sign-in/out lives in features/auth/useCustomer — one login for all
+// roles. These hooks only fetch admin data; the API 403s non-admin sessions.
 
 export function useAdminProducts(filters: { status?: string; q?: string } = {}) {
   return useQuery({
