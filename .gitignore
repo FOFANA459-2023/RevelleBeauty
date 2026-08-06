@@ -11,6 +11,9 @@ playwright-report/
 test-results/
 .vite/
 
+# Cloudflare Wrangler local state
+.wrangler/
+
 *.log
 .DS_Store
 Thumbs.db

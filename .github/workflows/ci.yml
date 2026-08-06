@@ -124,13 +124,15 @@ jobs:
           fi
           echo "All green"
 
-  # ── Deploy: Cloudflare Pages on every green main build. ─────────────
-  # Needs two repo secrets (Settings -> Secrets -> Actions):
-  #   CLOUDFLARE_API_TOKEN   (Pages:Edit permission)
+  # ── Deploy: Cloudflare Workers static assets on every green main build. ──
+  # ONLY needed if you are NOT using Cloudflare's own Git integration
+  # (Workers Builds). If Cloudflare already builds on push, leave these
+  # secrets unset and this job stays skipped — otherwise you get two
+  # competing deploys of the same commit. See DEPLOY.md.
+  #   CLOUDFLARE_API_TOKEN   (Workers Scripts: Edit)
   #   CLOUDFLARE_ACCOUNT_ID
-  # Skips gracefully until they exist. See DEPLOY.md.
   deploy:
-    name: Deploy (Cloudflare Pages)
+    name: Deploy (Cloudflare Workers)
     runs-on: ubuntu-latest
     needs: [ci-ok]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
@@ -160,8 +162,8 @@ jobs:
           npm ci
           npm run build
         env:
-          # Point the SPA at the live API (Pages project env var wins if set).
+          # Same-origin by default: the Worker proxies /api/* to the backend.
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || '/api' }}
-      - name: Publish to Cloudflare Pages
+      - name: Publish to Cloudflare
         if: steps.cf.outputs.configured == 'true'
-        run: npx wrangler pages deploy dist --project-name=revellebeauty --branch=main
+        run: npx wrangler deploy

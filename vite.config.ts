@@ -8,8 +8,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '@contracts': path.resolve(__dirname, 'contracts'),
+      // import.meta.dirname, not __dirname: the latter is unsupported by
+      // Vite's native config loader (warns today, breaks in a future major).
+      '@': path.resolve(import.meta.dirname, 'src'),
+      '@contracts': path.resolve(import.meta.dirname, 'contracts'),
     },
   },
   server: {
