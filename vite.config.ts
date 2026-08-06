@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -8,7 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
-      '@contracts': path.resolve(__dirname, '../contracts'),
+      '@contracts': path.resolve(__dirname, 'contracts'),
     },
   },
   server: {
@@ -18,6 +19,11 @@ export default defineConfig({
       '/api': { target: 'http://localhost:4000', changeOrigin: false },
       '/uploads': { target: 'http://localhost:4000', changeOrigin: false },
     },
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['tests/setup.ts'],
+    include: ['tests/unit/**/*.test.ts', 'tests/component/**/*.test.tsx'],
   },
   build: {
     rollupOptions: {

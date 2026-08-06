@@ -25,8 +25,8 @@
 
     "paths": {
       "@/*": ["./src/*"],
-      "@contracts/*": ["../contracts/*"]
+      "@contracts/*": ["./contracts/*"]
     }
   },
-  "include": ["src", "../contracts"]
+  "include": ["src", "contracts"]
 }
