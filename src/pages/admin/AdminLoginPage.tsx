@@ -5,6 +5,7 @@ import { Wordmark } from '@/components/brand/Wordmark';
 import { Button } from '@/components/ui/Button';
 
 export function AdminLoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const login = useAdminLogin();
   const navigate = useNavigate();
@@ -13,8 +14,11 @@ export function AdminLoginPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    login.mutate(password, { onSuccess: () => navigate(from, { replace: true }) });
+    login.mutate({ email, password }, { onSuccess: () => navigate(from, { replace: true }) });
   };
+
+  const input =
+    'mt-1.5 w-full bg-ivory-deep border border-hairline rounded-md px-3.5 py-2.5 text-[14px] text-ink';
 
   return (
     <div className="min-h-dvh bg-ivory grid place-items-center px-4">
@@ -27,14 +31,26 @@ export function AdminLoginPage() {
           <p className="eyebrow text-[0.6rem] text-ink-muted mt-3">Admin sign in</p>
         </div>
         <label className="block">
+          <span className="text-[13px] text-ink-soft">Email</span>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoFocus
+            required
+            autoComplete="username"
+            className={input}
+          />
+        </label>
+        <label className="block mt-4">
           <span className="text-[13px] text-ink-soft">Password</span>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoFocus
+            required
             autoComplete="current-password"
-            className="mt-1.5 w-full bg-ivory-deep border border-hairline rounded-md px-3.5 py-2.5 text-[14px] text-ink"
+            className={input}
           />
         </label>
         {login.isError && (
@@ -42,17 +58,9 @@ export function AdminLoginPage() {
             ✕ {login.error instanceof Error ? login.error.message : 'Login failed'}
           </p>
         )}
-        <Button
-          variant="solid"
-          className="w-full mt-6"
-          loading={login.isPending}
-          type="submit"
-        >
+        <Button variant="solid" className="w-full mt-6" loading={login.isPending} type="submit">
           Sign in
         </Button>
-        <p className="mt-4 text-xs text-ink-muted text-center">
-          Dev default password: <code className="tabular">revelle-admin</code>
-        </p>
       </form>
     </div>
   );

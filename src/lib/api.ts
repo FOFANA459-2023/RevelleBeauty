@@ -74,10 +74,10 @@ export const mockPay = (sessionId: string, name?: string, email?: string) =>
 
 /* ---------- admin ---------- */
 
-export const adminLogin = (password: string) =>
+export const adminLogin = (email: string, password: string) =>
   http<{ ok: boolean; expiresAt: string }>('/admin/login', {
     method: 'POST',
-    body: { password },
+    body: { email, password },
   });
 
 export const adminLogout = () => http<{ ok: boolean }>('/admin/logout', { method: 'POST' });

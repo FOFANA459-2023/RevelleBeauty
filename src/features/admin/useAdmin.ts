@@ -15,7 +15,8 @@ export function useAdminSession() {
 export function useAdminLogin() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (password: string) => api.adminLogin(password),
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      api.adminLogin(email, password),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.admin.session() }),
   });
 }
