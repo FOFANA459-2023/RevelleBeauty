@@ -58,13 +58,36 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # No secret may ever reach the public bundle.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 3
+
+  security:
+    name: Security scan + dependency audit
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      # The bundle ships to every visitor — no secret may ever be inside it.
       - name: Scan bundle for leaked secrets
         run: |
-          if grep -rE "sk_(test|live)_|service_role|whsec_" dist/; then
+          if grep -rE "sk_(test|live)_|service_role|whsec_|SUPABASE_SERVICE" dist/; then
             echo "::error::Secret-looking string found in the built bundle"; exit 1
           fi
           echo "Bundle clean"
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
 
   e2e:
     name: End-to-end (Playwright)
@@ -77,7 +100,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      # The API boundary is mocked in the tests — no backend needed here.
+      # Real browser against the production build; API mocked at the network
+      # boundary, so no backend or credentials are needed.
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -90,7 +114,7 @@ jobs:
   ci-ok:
     name: CI OK
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, test, build, e2e]
+    needs: [lint, typecheck, test, build, security, e2e]
     if: always()
     steps:
       - name: Verify all jobs passed
@@ -99,3 +123,45 @@ jobs:
             echo "One or more jobs failed"; exit 1
           fi
           echo "All green"
+
+  # ── Deploy: Cloudflare Pages on every green main build. ─────────────
+  # Needs two repo secrets (Settings -> Secrets -> Actions):
+  #   CLOUDFLARE_API_TOKEN   (Pages:Edit permission)
+  #   CLOUDFLARE_ACCOUNT_ID
+  # Skips gracefully until they exist. See DEPLOY.md.
+  deploy:
+    name: Deploy (Cloudflare Pages)
+    runs-on: ubuntu-latest
+    needs: [ci-ok]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check Cloudflare secrets
+        id: cf
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare secrets not set — skipping deploy"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.cf.outputs.configured == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.cf.outputs.configured == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - name: Build for production
+        if: steps.cf.outputs.configured == 'true'
+        run: |
+          npm ci
+          npm run build
+        env:
+          # Point the SPA at the live API (Pages project env var wins if set).
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || '/api' }}
+      - name: Publish to Cloudflare Pages
+        if: steps.cf.outputs.configured == 'true'
+        run: npx wrangler pages deploy dist --project-name=revellebeauty --branch=main
