@@ -18,10 +18,12 @@
   },
 
   "vars": {
-    // The deployed backend (Oracle Cloud VM, direct IP while there is no
-    // domain). Plain http for now — the browser<->Worker hop is still HTTPS;
-    // only the Cloudflare->VM hop is unencrypted. Switch to a Cloudflare
-    // Tunnel hostname (https) before taking real orders.
-    "API_ORIGIN": "http://161.33.163.43:4000"
+    // The deployed backend (Oracle Cloud VM). Two Workers-runtime constraints
+    // shape this value: fetch() to a raw IP returns error 1003, so the
+    // sslip.io wildcard DNS provides a hostname; and only standard ports are
+    // allowed, so the VM maps 80 -> container 4000. Browser<->Worker stays
+    // HTTPS; the Cloudflare->VM hop is http until a domain + Tunnel exist —
+    // switch before taking real orders.
+    "API_ORIGIN": "http://161.33.163.43.sslip.io"
   }
 }
