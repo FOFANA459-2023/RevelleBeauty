@@ -11,7 +11,12 @@ import { CategoryPage } from '@/pages/shop/CategoryPage';
 import { ProductPage } from '@/pages/shop/ProductPage';
 import { CartPage } from '@/pages/shop/CartPage';
 import { CheckoutPage } from '@/pages/shop/CheckoutPage';
-import { LoginPage, RegisterPage } from '@/pages/shop/AuthPages';
+import {
+  ForgotPasswordPage,
+  LoginPage,
+  RegisterPage,
+  ResetPasswordPage,
+} from '@/pages/shop/AuthPages';
 import {
   AccountPage,
   AccountAddressesPage,
@@ -62,6 +67,8 @@ const router = createBrowserRouter([
       { path: '/checkout', element: <CheckoutPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+      { path: '/reset-password', element: <ResetPasswordPage /> },
       { path: '/account', element: <AccountPage /> },
       { path: '/account/addresses', element: <AccountAddressesPage /> },
       { path: '/account/orders', element: <AccountOrdersPage /> },

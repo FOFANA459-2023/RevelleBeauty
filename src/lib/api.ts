@@ -88,6 +88,12 @@ export const customerLogin = (email: string, password: string) =>
 
 export const customerLogout = () => http<{ ok: boolean }>('/auth/logout', { method: 'POST' });
 
+export const forgotPassword = (email: string) =>
+  http<{ ok: boolean }>('/auth/forgot-password', { method: 'POST', body: { email } });
+
+export const resetPassword = (token: string, password: string) =>
+  http<{ ok: boolean }>('/auth/reset-password', { method: 'POST', body: { token, password } });
+
 export const customerMe = () =>
   http<{ customer: CustomerProfile }>('/auth/me').then((r) => r.customer);
 
