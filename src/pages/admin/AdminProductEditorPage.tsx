@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { AdminProductDetailDTO, AdminVariantDTO } from '@contracts/index';
 import { useAdminProduct, useAdminCategories } from '@/features/admin/useAdmin';
@@ -112,7 +112,8 @@ export function AdminProductEditorPage() {
 
   return (
     <div className="max-w-4xl pb-24">
-      <div className="flex items-center justify-between mb-6">
+      <Link to="/admin/products" className="text-ink-muted hover:text-ink text-[13px]">← Products</Link>
+      <div className="flex items-center justify-between mb-6 mt-2">
         <h1 className="text-xl font-semibold text-ink">
           {isNew ? 'New product' : product?.name ?? '…'}
         </h1>

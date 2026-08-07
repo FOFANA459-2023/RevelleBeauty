@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import {
   useAccountOrder,
   useAccountOrders,
@@ -36,6 +36,7 @@ export function AccountPage() {
   const logout = useCustomerLogout();
   const updateProfile = useUpdateProfile();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
@@ -55,6 +56,13 @@ export function AccountPage() {
       });
     }
   }, [me]);
+
+  // Smooth-scroll to the section the header menu asked for (#address, #orders).
+  useEffect(() => {
+    if (!me || !location.hash) return;
+    const el = document.getElementById(location.hash.slice(1));
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [me, location.hash]);
 
   if (isPending) return <div className="py-32 text-center text-sm text-ink-muted">Loading…</div>;
   if (isError || !me) return <Navigate to="/login?next=/account" replace />;
@@ -108,8 +116,8 @@ export function AccountPage() {
       <GoldRule className="mt-8 mb-10" />
 
       <div className="grid lg:grid-cols-[320px_1fr] gap-10">
-        {/* profile card */}
-        <section className="bg-porcelain border border-hairline rounded-sm p-6 self-start">
+        {/* profile card (the header menu's Addresses link lands here) */}
+        <section id="address" className="bg-porcelain border border-hairline rounded-sm p-6 self-start scroll-mt-24">
           <div className="flex items-center justify-between mb-5">
             <h2 className="eyebrow text-ink">Profile</h2>
             {!editing && (
@@ -174,7 +182,7 @@ export function AccountPage() {
         </section>
 
         {/* orders */}
-        <section>
+        <section id="orders" className="scroll-mt-24">
           <h2 className="eyebrow text-ink mb-5">Order history</h2>
           {!orders || orders.length === 0 ? (
             <div className="text-center py-16 bg-porcelain border border-hairline rounded-sm">

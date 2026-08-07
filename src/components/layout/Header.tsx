@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { useCart, selectItemCount } from '@/features/cart/cartStore';
+import { useCustomer, useCustomerLogout } from '@/features/auth/useCustomer';
 import { cn } from '@/lib/cn';
 import logo from '@/assets/logo.jpg';
 
@@ -87,16 +88,7 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
 
           {/* right: account + bag */}
           <div className="justify-self-end flex items-center gap-1 sm:gap-3">
-            <Link
-              to="/account"
-              aria-label="My account"
-              className="p-2 text-ink hover:text-ink-soft"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
-              </svg>
-            </Link>
+            <AccountMenu />
             <button
               onClick={onOpenCart}
               aria-label={`Open bag, ${itemCount} items`}
@@ -136,5 +128,115 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
         )}
       </header>
     </>
+  );
+}
+
+const ACCOUNT_LINKS = [
+  { to: '/account', label: 'My account' },
+  { to: '/account#address', label: 'Addresses' },
+  { to: '/account#orders', label: 'Orders' },
+  { to: '/contact', label: 'Messages' },
+];
+
+/**
+ * The profile icon. Signed out: straight to /login. Signed in: a small
+ * dropdown — account, addresses, orders, messages — plus the admin
+ * dashboard for admins and sign out. Closes on outside click and Escape.
+ */
+function AccountMenu() {
+  const { data: me } = useCustomer();
+  const logout = useCustomerLogout();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const icon = (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
+    </svg>
+  );
+
+  if (!me) {
+    return (
+      <Link to="/login" aria-label="Sign in" className="p-2 text-ink hover:text-ink-soft">
+        {icon}
+      </Link>
+    );
+  }
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        aria-label="My account menu"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={() => setOpen((v) => !v)}
+        className="p-2 text-ink hover:text-ink-soft cursor-pointer"
+      >
+        {icon}
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-2 w-56 bg-porcelain border border-hairline rounded-sm shadow-[var(--shadow-lift)] py-2 z-50 animate-[fadein_150ms_ease]"
+        >
+          <p className="px-4 py-2 text-xs text-ink-muted border-b border-hairline truncate">
+            {me.name}
+          </p>
+          {ACCOUNT_LINKS.map((l) => (
+            <Link
+              key={l.label}
+              to={l.to}
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2.5 text-sm text-ink-soft hover:text-ink hover:bg-ivory transition-colors"
+            >
+              {l.label}
+            </Link>
+          ))}
+          {me.role === 'admin' && (
+            <Link
+              to="/admin"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2.5 text-sm text-gold-950 hover:bg-ivory border-t border-hairline transition-colors"
+            >
+              Admin dashboard →
+            </Link>
+          )}
+          <button
+            role="menuitem"
+            onClick={() =>
+              logout.mutate(undefined, {
+                onSuccess: () => {
+                  setOpen(false);
+                  navigate('/');
+                },
+              })
+            }
+            className="block w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-ink hover:bg-ivory border-t border-hairline cursor-pointer transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

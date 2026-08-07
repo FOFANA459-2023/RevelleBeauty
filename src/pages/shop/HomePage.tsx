@@ -57,10 +57,13 @@ export function HomePage() {
 
   return (
     <>
-      {/* ============ 1. HERO — split editorial ============ */}
+      {/* ============ 1. HERO — split editorial ============
+          Desktop: text column left, a composed two-card media cluster right
+          (image + video side by side, offset for rhythm — no floating
+          overlaps). One primary path: the shop. */}
       <section className="mx-auto max-w-[1440px] px-gutter">
-        <div className="grid lg:grid-cols-12 items-center gap-10 lg:gap-6 min-h-[70svh] py-10 lg:py-6">
-          <div className="order-2 lg:order-1 lg:col-span-6 text-center lg:text-left">
+        <div className="grid lg:grid-cols-12 items-center gap-10 lg:gap-12 min-h-[70svh] lg:min-h-[78svh] py-10 lg:py-8">
+          <div className="order-2 lg:order-1 lg:col-span-5 text-center lg:text-left">
             <p className="eyebrow text-gold-950">Revelle Beauty</p>
             <h1 className="display text-display-1 text-ink mt-6">
               Be you.
@@ -82,17 +85,25 @@ export function HomePage() {
                 <Button variant="outline" size="lg">Discover skincare</Button>
               </Link>
             </div>
+            <div className="mt-10 hidden lg:flex items-center gap-8 text-xs text-ink-muted">
+              <span>40+ shades</span>
+              <span className="w-px h-4 bg-hairline" aria-hidden="true" />
+              <span>Clean formulas</span>
+              <span className="w-px h-4 bg-hairline" aria-hidden="true" />
+              <span>Cruelty free</span>
+            </div>
           </div>
 
-          <div className="order-1 lg:order-2 lg:col-span-5 lg:col-start-8 relative">
-            <img
-              src={campaignImage}
-              alt=""
-              aria-hidden="true"
-              className="hidden lg:block absolute -left-16 top-14 w-[55%] rounded-xs opacity-90 shadow-[var(--shadow-lift)]"
-            />
-            <div className="relative mx-auto max-w-[440px] aspect-[3/4] rounded-xs metal-ring overflow-hidden shadow-[var(--shadow-lift)]">
-              <BrandVideo src="/media/revelle-hero.mp4" poster="/media/revelle-hero-poster.jpg" className="h-full w-full" />
+          <div className="order-1 lg:order-2 lg:col-span-7">
+            <div className="grid grid-cols-[1fr_1.2fr] gap-4 lg:gap-5 items-center max-w-[420px] sm:max-w-[560px] lg:max-w-[680px] mx-auto lg:ml-auto lg:mr-0">
+              <img
+                src={campaignImage}
+                alt="The Revelle campaign"
+                className="w-full aspect-[3/4] object-cover rounded-xs metal-ring shadow-[var(--shadow-lift)] lg:translate-y-8"
+              />
+              <div className="aspect-[3/4] rounded-xs metal-ring overflow-hidden shadow-[var(--shadow-lift)] lg:-translate-y-4">
+                <BrandVideo src="/media/revelle-hero.mp4" poster="/media/revelle-hero-poster.jpg" className="h-full w-full" />
+              </div>
             </div>
           </div>
         </div>

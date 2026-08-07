@@ -61,7 +61,8 @@ export function CartPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-gutter py-12">
-      <h1 className="display text-display-2 text-ink">Your bag</h1>
+      <Link to="/shop" className="eyebrow text-ink-muted link-ink">← Continue shopping</Link>
+      <h1 className="display text-display-2 text-ink mt-4">Your bag</h1>
       <GoldRule className="mt-6 mb-2" />
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-12 mt-8">

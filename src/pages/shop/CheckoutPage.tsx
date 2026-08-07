@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router';
+import { Link, Navigate } from 'react-router';
 import { useCustomer } from '@/features/auth/useCustomer';
 import { useCart, selectSubtotalCents } from '@/features/cart/cartStore';
 import { useSettings } from '@/features/catalog/useCatalog';
@@ -83,7 +83,8 @@ export function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-gutter py-12">
-      <h1 className="display text-display-2 text-ink">Checkout</h1>
+      <Link to="/cart" className="eyebrow text-ink-muted link-ink">← Back to bag</Link>
+      <h1 className="display text-display-2 text-ink mt-4">Checkout</h1>
       <GoldRule className="mt-6 mb-10" />
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-12">
@@ -106,6 +107,18 @@ export function CheckoutPage() {
 
           <section>
             <h2 className="eyebrow text-ink mb-5">Shipping address</h2>
+            {me.address ? (
+              <p className="mb-5 text-[13px] text-ink-muted bg-porcelain border border-hairline rounded-xs px-4 py-3">
+                ✓ Filled from your saved address — edit anything below, or manage it in{' '}
+                <Link to="/account#address" className="link-ink text-ink">My account</Link>.
+              </p>
+            ) : (
+              <p className="mb-5 text-[13px] text-ink-soft bg-ivory border border-gold-500/50 rounded-xs px-4 py-3">
+                No saved address yet — fill it in once below and we'll remember it for
+                next time. You can update it anytime in{' '}
+                <Link to="/account#address" className="link-ink text-ink">My account</Link>.
+              </p>
+            )}
             <div className="grid sm:grid-cols-2 gap-5">
               <label className="sm:col-span-2">
                 <span className={labelText}>Full name *</span>
