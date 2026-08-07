@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { useCart, selectItemCount } from '@/features/cart/cartStore';
-import { useCustomer, useCustomerLogout } from '@/features/auth/useCustomer';
+import {
+  useAccountOrders,
+  useCustomer,
+  useCustomerLogout,
+  useMessages,
+} from '@/features/auth/useCustomer';
+import type { FulfillmentStage } from '@contracts/index';
 import { cn } from '@/lib/cn';
 import logo from '@/assets/logo.jpg';
 
@@ -133,10 +139,31 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
 
 const ACCOUNT_LINKS = [
   { to: '/account', label: 'My account' },
-  { to: '/account#address', label: 'Addresses' },
-  { to: '/account#orders', label: 'Orders' },
-  { to: '/contact', label: 'Messages' },
+  { to: '/account/addresses', label: 'Addresses' },
+  { to: '/account/orders', label: 'Orders' },
+  { to: '/account/messages', label: 'Messages' },
 ];
+
+/** Stages that appear on the mini progress bar, in order. */
+const TRACK_STAGES: FulfillmentStage[] = ['payment_received', 'packaged', 'shipped', 'delivered'];
+
+/** Compact horizontal tracking bar for the account dropdown. */
+function MiniTracking({ stage }: { stage: FulfillmentStage }) {
+  const idx = TRACK_STAGES.indexOf(stage);
+  return (
+    <span className="flex items-center gap-1 w-full" aria-label={`Progress: ${stage.replace(/_/g, ' ')}`}>
+      {TRACK_STAGES.map((s, i) => (
+        <span
+          key={s}
+          className={cn(
+            'h-1 flex-1 rounded-full transition-colors',
+            i <= idx ? 'bg-gold-700' : 'bg-hairline',
+          )}
+        />
+      ))}
+    </span>
+  );
+}
 
 /**
  * The profile icon. Signed out: straight to /login. Signed in: a small
@@ -145,10 +172,16 @@ const ACCOUNT_LINKS = [
  */
 function AccountMenu() {
   const { data: me } = useCustomer();
+  const { data: inbox } = useMessages(Boolean(me));
+  const { data: orders } = useAccountOrders(Boolean(me));
   const logout = useCustomerLogout();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  const unread = inbox?.unreadCount ?? 0;
+  // Orders still moving through the pipeline — shown with a progress bar.
+  const inTransit = (orders ?? []).filter((o) => o.fulfillmentStage !== 'delivered').slice(0, 2);
 
   useEffect(() => {
     if (!open) return;
@@ -184,13 +217,18 @@ function AccountMenu() {
   return (
     <div ref={rootRef} className="relative">
       <button
-        aria-label="My account menu"
+        aria-label={unread > 0 ? `My account menu, ${unread} unread messages` : 'My account menu'}
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((v) => !v)}
-        className="p-2 text-ink hover:text-ink-soft cursor-pointer"
+        className="relative p-2 text-ink hover:text-ink-soft cursor-pointer"
       >
         {icon}
+        {unread > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-gold-700 text-porcelain text-[0.6rem] grid place-items-center tabular">
+            {unread > 9 ? '9+' : unread}
+          </span>
+        )}
       </button>
       {open && (
         <div
@@ -206,11 +244,36 @@ function AccountMenu() {
               to={l.to}
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="block px-4 py-2.5 text-sm text-ink-soft hover:text-ink hover:bg-ivory transition-colors"
+              className="flex items-center justify-between px-4 py-2.5 text-sm text-ink-soft hover:text-ink hover:bg-ivory transition-colors"
             >
               {l.label}
+              {l.label === 'Messages' && unread > 0 && (
+                <span className="min-w-4 h-4 px-1 rounded-full bg-gold-700 text-porcelain text-[0.6rem] grid place-items-center tabular">
+                  {unread > 9 ? '9+' : unread}
+                </span>
+              )}
             </Link>
           ))}
+          {inTransit.length > 0 && (
+            <div className="border-t border-hairline pt-2 mt-1">
+              <p className="px-4 pb-1 text-[0.6rem] uppercase tracking-wider text-ink-muted">Order tracking</p>
+              {inTransit.map((o) => (
+                <Link
+                  key={o.id}
+                  to={`/account/orders/${o.id}`}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="block px-4 py-2 hover:bg-ivory transition-colors"
+                >
+                  <span className="flex items-center justify-between text-xs text-ink mb-1.5">
+                    <span className="tabular">{o.orderNumber}</span>
+                    <span className="text-ink-muted capitalize">{o.fulfillmentStage.replace(/_/g, ' ')}</span>
+                  </span>
+                  <MiniTracking stage={o.fulfillmentStage} />
+                </Link>
+              ))}
+            </div>
+          )}
           {me.role === 'admin' && (
             <Link
               to="/admin"

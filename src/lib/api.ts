@@ -25,6 +25,7 @@ import type {
   CustomerOrderDetailDTO,
   CustomerOrderSummaryDTO,
   CustomerProfile,
+  MessagesResponse,
   ProfilePatch,
   RegisterBody,
   ShippingInput,
@@ -103,6 +104,11 @@ export const accountOrder = (id: string) =>
 
 export const confirmDelivery = (orderId: string) =>
   http<{ ok: boolean }>(`/account/orders/${orderId}/confirm-delivery`, { method: 'POST' });
+
+export const accountMessages = () => http<MessagesResponse>('/account/messages');
+
+export const markMessagesRead = () =>
+  http<{ ok: boolean }>('/account/messages/read', { method: 'POST' });
 
 export const adminUpdateStage = (orderId: string, stage: string, note?: string) =>
   http<{ ok: boolean }>(`/admin/orders/${orderId}/stage`, {

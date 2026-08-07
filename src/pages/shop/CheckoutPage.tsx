@@ -110,13 +110,13 @@ export function CheckoutPage() {
             {me.address ? (
               <p className="mb-5 text-[13px] text-ink-muted bg-porcelain border border-hairline rounded-xs px-4 py-3">
                 ✓ Filled from your saved address — edit anything below, or manage it in{' '}
-                <Link to="/account#address" className="link-ink text-ink">My account</Link>.
+                <Link to="/account/addresses" className="link-ink text-ink">My account</Link>.
               </p>
             ) : (
               <p className="mb-5 text-[13px] text-ink-soft bg-ivory border border-gold-500/50 rounded-xs px-4 py-3">
                 No saved address yet — fill it in once below and we'll remember it for
                 next time. You can update it anytime in{' '}
-                <Link to="/account#address" className="link-ink text-ink">My account</Link>.
+                <Link to="/account/addresses" className="link-ink text-ink">My account</Link>.
               </p>
             )}
             <div className="grid sm:grid-cols-2 gap-5">

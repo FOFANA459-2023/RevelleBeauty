@@ -7,6 +7,7 @@ const KEY = {
   me: ['customer', 'me'] as const,
   orders: ['customer', 'orders'] as const,
   order: (id: string) => ['customer', 'order', id] as const,
+  messages: ['customer', 'messages'] as const,
 };
 
 export function useCustomer() {
@@ -54,8 +55,8 @@ export function useUpdateProfile() {
   });
 }
 
-export function useAccountOrders() {
-  return useQuery({ queryKey: KEY.orders, queryFn: api.accountOrders });
+export function useAccountOrders(enabled = true) {
+  return useQuery({ queryKey: KEY.orders, queryFn: api.accountOrders, enabled });
 }
 
 export function useAccountOrder(id: string | undefined) {
@@ -65,6 +66,35 @@ export function useAccountOrder(id: string | undefined) {
     enabled: Boolean(id),
     // Tracking page: refresh periodically so admin updates appear live.
     refetchInterval: 30_000,
+  });
+}
+
+/** The inbox. Enabled only when signed in; refreshes so new tracking
+ *  messages appear without a reload. */
+export function useMessages(enabled = true) {
+  return useQuery({
+    queryKey: KEY.messages,
+    queryFn: api.accountMessages,
+    enabled,
+    refetchInterval: 60_000,
+    retry: (count, err) => !(err instanceof ApiError && err.status === 401) && count < 1,
+  });
+}
+
+export function useMarkMessagesRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.markMessagesRead,
+    onSuccess: () => {
+      qc.setQueryData(KEY.messages, (prev: Awaited<ReturnType<typeof api.accountMessages>> | undefined) =>
+        prev
+          ? {
+              messages: prev.messages.map((m) => ({ ...m, readAt: m.readAt ?? new Date().toISOString() })),
+              unreadCount: 0,
+            }
+          : prev,
+      );
+    },
   });
 }
 
