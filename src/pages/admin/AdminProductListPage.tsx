@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useAdminProducts, useAdminStats } from '@/features/admin/useAdmin';
 import { formatCents } from '@/lib/money';
 import { cn } from '@/lib/cn';
@@ -15,6 +15,7 @@ export function AdminProductListPage() {
   const [q, setQ] = useState('');
   const { data, isPending } = useAdminProducts({ status: status || undefined, q: q || undefined });
   const { data: stats } = useAdminStats();
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -90,9 +91,18 @@ export function AdminProductListPage() {
               <tr><td colSpan={6} className="px-4 py-10 text-center text-ink-muted">Loading…</td></tr>
             )}
             {data?.products.map((p) => (
-              <tr key={p.id} className="hover:bg-ivory">
+              // The whole row is the click target — not just the name.
+              <tr
+                key={p.id}
+                onClick={() => navigate(`/admin/products/${p.id}`)}
+                className="hover:bg-ivory cursor-pointer"
+              >
                 <td className="px-4 py-3">
-                  <Link to={`/admin/products/${p.id}`} className="flex items-center gap-3 text-ink font-medium">
+                  <Link
+                    to={`/admin/products/${p.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-3 text-ink font-medium"
+                  >
                     {p.primaryImageUrl ? (
                       <img src={p.primaryImageUrl} alt="" className="w-9 h-9 object-contain bg-ivory-deep rounded" />
                     ) : (

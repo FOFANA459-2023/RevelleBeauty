@@ -38,6 +38,7 @@ export function AdminOrderListPage() {
   const [status, setStatus] = useState('');
   const [q, setQ] = useState('');
   const { data, isPending } = useAdminOrders({ status: status || undefined, q: q || undefined });
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -90,9 +91,18 @@ export function AdminOrderListPage() {
               <tr><td colSpan={6} className="px-4 py-10 text-center text-ink-muted">No orders yet.</td></tr>
             )}
             {data?.orders.map((o) => (
-              <tr key={o.id} className="hover:bg-ivory">
+              // The whole row is the click target — not just the order number.
+              <tr
+                key={o.id}
+                onClick={() => navigate(`/admin/orders/${o.id}`)}
+                className="hover:bg-ivory cursor-pointer"
+              >
                 <td className="px-4 py-3">
-                  <Link to={`/admin/orders/${o.id}`} className="font-medium text-ink tabular">
+                  <Link
+                    to={`/admin/orders/${o.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="font-medium text-ink tabular"
+                  >
                     {o.orderNumber}
                   </Link>
                 </td>

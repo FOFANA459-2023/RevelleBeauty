@@ -256,7 +256,14 @@ function AccountMenu() {
           ))}
           {inTransit.length > 0 && (
             <div className="border-t border-hairline pt-2 mt-1">
-              <p className="px-4 pb-1 text-[0.6rem] uppercase tracking-wider text-ink-muted">Order tracking</p>
+              <Link
+                to="/account/orders"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-between px-4 pb-1 text-[0.6rem] uppercase tracking-wider text-ink-muted hover:text-ink"
+              >
+                Order tracking <span aria-hidden="true">→</span>
+              </Link>
               {inTransit.map((o) => (
                 <Link
                   key={o.id}

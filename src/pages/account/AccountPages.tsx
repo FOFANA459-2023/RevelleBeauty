@@ -338,36 +338,45 @@ export function AccountMessagesPage() {
         </div>
       ) : (
         <ul className="space-y-3">
-          {inbox.messages.map((m) => (
-            <li
-              key={m.id}
-              className={cn(
-                'bg-porcelain border rounded-sm p-5',
-                m.readAt ? 'border-hairline' : 'border-gold-500',
-              )}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  {!m.readAt && (
-                    <span className="w-2 h-2 rounded-full bg-gold-700 shrink-0" aria-label="Unread" />
-                  )}
-                  <p className="text-sm font-medium text-ink truncate">{m.title}</p>
+          {inbox.messages.map((m) => {
+            const card = (
+              <>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {!m.readAt && (
+                      <span className="w-2 h-2 rounded-full bg-gold-700 shrink-0" aria-label="Unread" />
+                    )}
+                    <p className="text-sm font-medium text-ink truncate">{m.title}</p>
+                  </div>
+                  <p className="text-xs text-ink-muted tabular shrink-0">
+                    {new Date(m.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </p>
                 </div>
-                <p className="text-xs text-ink-muted tabular shrink-0">
-                  {new Date(m.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                </p>
-              </div>
-              <p className="mt-2 text-sm text-ink-soft leading-relaxed">{m.body}</p>
-              {m.orderId && (
-                <Link
-                  to={`/account/orders/${m.orderId}`}
-                  className="mt-3 inline-block text-xs text-ink link-ink"
-                >
-                  View order & tracking →
-                </Link>
-              )}
-            </li>
-          ))}
+                <p className="mt-2 text-sm text-ink-soft leading-relaxed">{m.body}</p>
+                {m.orderId && (
+                  <span className="mt-3 inline-block text-xs text-ink link-ink">
+                    View order & tracking →
+                  </span>
+                )}
+              </>
+            );
+            const cardCls = cn(
+              'block bg-porcelain border rounded-sm p-5',
+              m.readAt ? 'border-hairline' : 'border-gold-500',
+            );
+            return (
+              <li key={m.id}>
+                {m.orderId ? (
+                  // Order messages: the ENTIRE card opens the tracking page.
+                  <Link to={`/account/orders/${m.orderId}`} className={cn(cardCls, 'hover:border-gold-700 transition-colors')}>
+                    {card}
+                  </Link>
+                ) : (
+                  <div className={cardCls}>{card}</div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </AccountShell>
