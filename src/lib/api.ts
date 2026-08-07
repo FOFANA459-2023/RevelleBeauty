@@ -105,6 +105,12 @@ export const accountOrder = (id: string) =>
 export const confirmDelivery = (orderId: string) =>
   http<{ ok: boolean }>(`/account/orders/${orderId}/confirm-delivery`, { method: 'POST' });
 
+export const getServerCart = () =>
+  http<{ items: CartItemInput[] }>('/account/cart').then((r) => r.items);
+
+export const putServerCart = (items: CartItemInput[]) =>
+  http<{ ok: boolean }>('/account/cart', { method: 'PUT', body: { items } });
+
 export const accountMessages = () => http<MessagesResponse>('/account/messages');
 
 export const markMessagesRead = () =>

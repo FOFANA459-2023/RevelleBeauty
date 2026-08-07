@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAdminOrders, useAdminOrder } from '@/features/admin/useAdmin';
 import * as api from '@/lib/api';
+import { ApiError } from '@/lib/http';
 import { queryKeys } from '@/lib/queryClient';
 import { formatCents } from '@/lib/money';
 import { cn } from '@/lib/cn';
@@ -115,16 +116,37 @@ export function AdminOrderDetailPage() {
   const { id } = useParams();
   const { data: order } = useAdminOrder(id);
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [tracking, setTracking] = useState('');
   const [notes, setNotes] = useState('');
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   if (!order) return <p className="text-ink-muted">Loading…</p>;
 
-  const update = async (patch: Parameters<typeof api.adminUpdateOrder>[1]) => {
-    await api.adminUpdateOrder(order.id, patch);
-    await qc.invalidateQueries({ queryKey: queryKeys.admin.order(order.id) });
-    await qc.invalidateQueries({ queryKey: ['admin', 'orders'] });
+  // Every write goes through here: failures are SHOWN, never swallowed —
+  // an expired session sends you back to sign-in instead of dead buttons.
+  const run = async (fn: () => Promise<unknown>) => {
+    setSaveError(null);
+    setBusy(true);
+    try {
+      await fn();
+      await qc.invalidateQueries({ queryKey: queryKeys.admin.order(order.id) });
+      await qc.invalidateQueries({ queryKey: ['admin', 'orders'] });
+    } catch (err) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        navigate(`/login?next=${encodeURIComponent(location.pathname)}`, { replace: true });
+        return;
+      }
+      setSaveError(err instanceof Error ? err.message : 'Save failed — please try again');
+    } finally {
+      setBusy(false);
+    }
   };
+
+  const update = (patch: Parameters<typeof api.adminUpdateOrder>[1]) =>
+    run(() => api.adminUpdateOrder(order.id, patch));
 
   return (
     <div className="max-w-3xl">
@@ -171,20 +193,16 @@ export function AdminOrderDetailPage() {
           <section className="bg-porcelain border border-hairline rounded-md p-5">
             <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide mb-3">
               Fulfillment pipeline
+              {busy && <span className="ml-2 normal-case font-normal text-ink-muted">saving…</span>}
             </h2>
-            <div className="flex flex-wrap gap-2 mb-5">
+            <div className="flex flex-wrap gap-2 mb-2">
               {PIPELINE.map((p) => {
                 const isCurrent = order.fulfillmentStage === p.stage;
                 return (
                   <button
                     key={p.stage}
-                    disabled={isCurrent}
-                    onClick={() => {
-                      void api.adminUpdateStage(order.id, p.stage).then(() => {
-                        void qc.invalidateQueries({ queryKey: queryKeys.admin.order(order.id) });
-                        void qc.invalidateQueries({ queryKey: ['admin', 'orders'] });
-                      });
-                    }}
+                    disabled={isCurrent || busy}
+                    onClick={() => void run(() => api.adminUpdateStage(order.id, p.stage))}
                     className={cn(
                       'px-3 py-1.5 rounded-md border text-[13px] cursor-pointer',
                       isCurrent
@@ -197,6 +215,12 @@ export function AdminOrderDetailPage() {
                 );
               })}
             </div>
+            {saveError && (
+              <p className="mb-4 text-[13px] text-ink font-medium bg-ivory border border-gold-700 rounded-md px-3 py-2">
+                ✕ {saveError}
+              </p>
+            )}
+            <div className="mb-3" />
 
             {/* timeline incl. customer delivery confirmations */}
             {order.events.length > 0 && (

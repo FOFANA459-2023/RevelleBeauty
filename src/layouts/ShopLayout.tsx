@@ -6,12 +6,16 @@ import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { useSettings } from '@/features/catalog/useCatalog';
 import { useCart } from '@/features/cart/cartStore';
+import { useCartSync } from '@/features/cart/useCartSync';
 import { validateCart } from '@/lib/api';
 
 export function ShopLayout() {
   const [cartOpen, setCartOpen] = useState(false);
   const { data: settings } = useSettings();
   const location = useLocation();
+
+  // Signed-in bags live on the server and follow the customer across devices.
+  useCartSync();
 
   // Reconcile the persisted cart against server truth once per mount.
   useEffect(() => {

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ProfilePatch, RegisterBody } from '@contracts/index';
 import * as api from '@/lib/api';
 import { ApiError } from '@/lib/http';
+import { useCart } from '@/features/cart/cartStore';
 
 const KEY = {
   me: ['customer', 'me'] as const,
@@ -43,6 +44,9 @@ export function useCustomerLogout() {
     onSuccess: () => {
       qc.setQueryData(KEY.me, null);
       qc.removeQueries({ queryKey: ['customer'] });
+      // The bag belongs to the account (synced server-side) — leaving it in
+      // this browser would show it to the next person on a shared device.
+      useCart.getState().clear();
     },
   });
 }
