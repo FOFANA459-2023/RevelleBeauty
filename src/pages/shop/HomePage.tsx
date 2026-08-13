@@ -21,7 +21,7 @@ const MARQUEE_ITEMS = [
 
 const TESTIMONIALS = [
   {
-    quote: 'The only gloss I have ever repurchased three times. Cherry Sheen is my whole personality now.',
+    quote: 'The only gloss I have ever repurchased three times. Fuchsia Kiss is my whole personality now.',
     name: 'Amara J.',
     product: 'High Shine Lip Oil',
   },
@@ -133,14 +133,14 @@ export function HomePage() {
             className="group relative rounded-xs overflow-hidden aspect-[16/10] block"
           >
             <img
-              src={campaignImage}
-              alt="Lips collection"
+              src="/media/lips-tint-collection.jpg"
+              alt="Lips collection — the Lip Tint shade range"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
               style={{ transitionTimingFunction: 'var(--ease-couture)' }}
             />
             <span className="absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/10 to-transparent" />
             <span className="absolute bottom-0 left-0 p-7 on-ink">
-              <span className="eyebrow text-gold-300 block">12 products · 40+ shades</span>
+              <span className="eyebrow text-gold-300 block">9 products · 40+ shades</span>
               <span className="display text-h1 text-ivory block mt-2">Lips</span>
               <span className="eyebrow text-ivory/90 mt-3 inline-block border-b border-gold-300 pb-1">
                 Shop now
@@ -205,14 +205,68 @@ export function HomePage() {
         </section>
       )}
 
+      {/* ============ 4b. EDITORIAL — new photography ============ */}
+      <section className="mt-section">
+        <div className="mx-auto max-w-[1440px] px-gutter">
+          <div className="text-center mb-10">
+            <p className="eyebrow text-gold-950">In focus</p>
+            <h2 className="display text-h1 text-ink mt-4">Three ways to glow</h2>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-5">
+            {[
+              {
+                to: '/product/magic-tone-lip',
+                src: '/media/lips-magic-tone-trio.jpg',
+                alt: 'Magic Tone Lip Oil — Vanilla, Sakura, and Black Currant',
+                eyebrow: 'pH-reactive',
+                title: 'Magic Tone',
+              },
+              {
+                to: '/product/diamond-lip-gloss',
+                src: '/media/lips-diamond-collection.jpg',
+                alt: 'Diamond Lip Gloss collection',
+                eyebrow: 'Multidimensional sparkle',
+                title: 'Diamond Gloss',
+              },
+              {
+                to: '/product/sugar-lip-scrub',
+                src: '/media/lips-scrub-model.jpg',
+                alt: 'Sugar Lip Scrub in use',
+                eyebrow: 'Buff, smooth, prep',
+                title: 'Sugar Scrub',
+              },
+            ].map((tile) => (
+              <Link
+                key={tile.to}
+                to={tile.to}
+                className="group relative rounded-xs overflow-hidden aspect-[4/5] block"
+              >
+                <img
+                  src={tile.src}
+                  alt={tile.alt}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                  style={{ transitionTimingFunction: 'var(--ease-couture)' }}
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
+                <span className="absolute bottom-0 left-0 p-6 on-ink">
+                  <span className="eyebrow text-gold-300 block">{tile.eyebrow}</span>
+                  <span className="display text-h2 text-ivory block mt-1.5">{tile.title}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ============ 5. CAMPAIGN BANNER — the Revelle banner ============ */}
       <section className="mt-section bg-porcelain border-y border-hairline">
         <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-20 grid lg:grid-cols-2 items-center gap-12">
           <div className="relative mx-auto w-full max-w-[520px]">
             <img
-              src={campaignImage}
-              alt="The Revelle campaign — High Shine Lip Oil"
-              className="w-full rounded-xs metal-ring shadow-[var(--shadow-lift)]"
+              src="/media/lips-high-shine-duo.jpg"
+              alt="High Shine Lip Oil in Fuchsia Kiss and Coral"
+              className="w-full rounded-xs metal-ring shadow-[var(--shadow-lift)] bg-white"
             />
             <img
               src={logoImage}
@@ -232,7 +286,7 @@ export function HomePage() {
               feel, and a shade range made to flatter every tone.
             </p>
             <ul className="mt-8 space-y-3 text-sm text-ink-soft max-w-md mx-auto lg:mx-0 text-left">
-              {['Mirror shine without the stick', 'Botanical oils condition over time', 'Five shades, sheer to statement'].map((t) => (
+              {['Mirror shine without the stick', 'Botanical oils condition over time', 'Eight shades, sheer to statement'].map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <Sparkle size={12} className="text-gold-500 mt-1 shrink-0" />
                   {t}
