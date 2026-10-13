@@ -77,6 +77,24 @@ describe('ShadePicker', () => {
     expect(screen.getByRole('radio', { name: 'HS06 Cherry Red' })).toBeInTheDocument();
   });
 
+  it('names the shade under the pointer without moving the selection', async () => {
+    const onChange = vi.fn();
+    render(<ShadePicker label="Shade" variants={shades} value={shades[0]!} onChange={onChange} />);
+
+    expect(screen.getByText('Clear Glaze')).toBeInTheDocument();
+
+    await userEvent.hover(screen.getByRole('radio', { name: 'Cherry Sheen' }));
+
+    expect(screen.getByText('Cherry Sheen')).toBeInTheDocument();
+    expect(screen.queryByText('Clear Glaze')).not.toBeInTheDocument();
+    // Previewing is not choosing.
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('radio', { name: 'Clear Glaze' })).toBeChecked();
+
+    await userEvent.unhover(screen.getByRole('radio', { name: 'Cherry Sheen' }));
+    expect(screen.getByText('Clear Glaze')).toBeInTheDocument();
+  });
+
   it('selects on click', async () => {
     const onChange = vi.fn();
     render(<ShadePicker label="Shade" variants={shades} value={shades[0]!} onChange={onChange} />);

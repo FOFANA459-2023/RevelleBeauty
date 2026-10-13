@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { VariantDTO } from '@contracts/index';
 import { ShadeSwatch } from './ShadeSwatch';
@@ -23,6 +23,10 @@ export function ShadePicker({
 }) {
   const shades = variants.filter((v) => v.hexColor);
   const groupRef = useRef<HTMLDivElement>(null);
+  // Pointing at a dome names it; the selection itself does not move until
+  // the shopper clicks. Keyboard focus previews too, so both paths read alike.
+  const [hovered, setHovered] = useState<VariantDTO | null>(null);
+  const shown = hovered ?? value;
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -50,12 +54,17 @@ export function ShadePicker({
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <span className="eyebrow text-ink-muted">{label}</span>
-        {value && (
+        {shown && (
           <span className="flex items-baseline gap-2" aria-live="polite">
-            {value.shadeCode && (
-              <span className="eyebrow tabular text-ink-muted">{value.shadeCode}</span>
+            {shown.shadeCode && (
+              <span className="eyebrow tabular text-ink-muted">{shown.shadeCode}</span>
             )}
-            <span className="shade-name text-h3 text-ink">{value.name}</span>
+            <span
+              key={shown.id}
+              className="shade-name text-h3 text-ink animate-[fadein_260ms_var(--ease-couture)_both]"
+            >
+              {shown.name}
+            </span>
           </span>
         )}
       </div>
@@ -65,6 +74,8 @@ export function ShadePicker({
         role="radiogroup"
         aria-label={label}
         onKeyDown={onKeyDown}
+        onMouseLeave={() => setHovered(null)}
+        onBlur={() => setHovered(null)}
         className="mt-5 grid grid-cols-6 gap-3 sm:grid-cols-7"
       >
         {shades.map((s) => (
@@ -77,11 +88,13 @@ export function ShadePicker({
             soldOut={!s.inStock}
             tabIndex={value?.id === s.id ? 0 : -1}
             onClick={() => onChange(s)}
+            onMouseEnter={() => setHovered(s)}
+            onFocus={() => setHovered(s)}
           />
         ))}
       </div>
 
-      {value?.hexColor && <ShadeBar hex={value.hexColor} hexSecondary={value.hexColorSecondary} />}
+      {shown?.hexColor && <ShadeBar hex={shown.hexColor} hexSecondary={shown.hexColorSecondary} />}
     </div>
   );
 }

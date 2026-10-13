@@ -152,11 +152,22 @@ export function HomePage() {
               style={{ transitionTimingFunction: 'var(--ease-couture)' }}
             />
             <span className="absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/10 to-transparent" />
-            <span className="absolute bottom-0 left-0 p-7 on-ink">
+            <span className="absolute inset-0 bg-gradient-to-t from-ink/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span
+              className="absolute bottom-0 left-0 p-7 on-ink transition-transform duration-500 motion-safe:group-hover:-translate-y-1"
+              style={{ transitionTimingFunction: 'var(--ease-couture)' }}
+            >
               <span className="eyebrow text-gold-300 block">9 products · 40+ shades</span>
               <span className="display text-h1 text-ivory block mt-2">Lips</span>
-              <span className="eyebrow text-ivory/90 mt-3 inline-block border-b border-gold-300 pb-1">
+              <span className="eyebrow text-ivory/90 mt-3 inline-flex items-center gap-2 border-b border-gold-300 pb-1">
                 Shop now
+                <span
+                  aria-hidden="true"
+                  className="text-gold-300 transition-transform duration-500 motion-safe:group-hover:translate-x-1"
+                  style={{ transitionTimingFunction: 'var(--ease-couture)' }}
+                >
+                  →
+                </span>
               </span>
             </span>
           </Link>
@@ -174,11 +185,22 @@ export function HomePage() {
               style={{ transitionTimingFunction: 'var(--ease-couture)' }}
             />
             <span className="absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/10 to-transparent" />
-            <span className="absolute bottom-0 left-0 p-7 on-ink">
+            <span className="absolute inset-0 bg-gradient-to-t from-ink/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span
+              className="absolute bottom-0 left-0 p-7 on-ink transition-transform duration-500 motion-safe:group-hover:-translate-y-1"
+              style={{ transitionTimingFunction: 'var(--ease-couture)' }}
+            >
               <span className="eyebrow text-gold-300 block">New — the ritual begins</span>
               <span className="display text-h1 text-ivory block mt-2">Skincare</span>
-              <span className="eyebrow text-ivory/90 mt-3 inline-block border-b border-gold-300 pb-1">
+              <span className="eyebrow text-ivory/90 mt-3 inline-flex items-center gap-2 border-b border-gold-300 pb-1">
                 Discover
+                <span
+                  aria-hidden="true"
+                  className="text-gold-300 transition-transform duration-500 motion-safe:group-hover:translate-x-1"
+                  style={{ transitionTimingFunction: 'var(--ease-couture)' }}
+                >
+                  →
+                </span>
               </span>
             </span>
           </Link>
@@ -272,7 +294,11 @@ export function HomePage() {
                   style={{ transitionTimingFunction: 'var(--ease-couture)' }}
                 />
                 <span className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
-                <span className="absolute bottom-0 left-0 p-6 on-ink">
+                <span className="absolute inset-0 bg-gradient-to-t from-ink/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <span
+                  className="absolute bottom-0 left-0 p-6 on-ink transition-transform duration-500 motion-safe:group-hover:-translate-y-1"
+                  style={{ transitionTimingFunction: 'var(--ease-couture)' }}
+                >
                   <span className="eyebrow text-gold-300 block">{tile.eyebrow}</span>
                   <span className="display text-h2 text-ivory block mt-1.5">{tile.title}</span>
                 </span>
@@ -295,7 +321,9 @@ export function HomePage() {
               src={logoImage}
               alt=""
               aria-hidden="true"
-              className="absolute -bottom-8 -right-6 w-24 h-24 lg:w-28 lg:h-28 rounded-full shadow-[var(--shadow-lift)]"
+              /* The overhang is the composition; on a phone it would push the
+                 whole page sideways, so it tucks back in under sm. */
+              className="absolute -bottom-4 -right-2 sm:-bottom-8 sm:-right-6 w-24 h-24 lg:w-28 lg:h-28 rounded-full shadow-[var(--shadow-lift)]"
             />
           </div>
           <div className="text-center lg:text-left">

@@ -126,7 +126,7 @@ export function ProductPage() {
 
       <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 mt-8">
         {/* ---------- gallery ---------- */}
-        <div className="lg:col-span-7">
+        <div className="lg:col-span-7 min-w-0">
           <div className="lg:sticky lg:top-24">
             {galleryImages.length > 0 ? (
               <ProductGallery
@@ -155,7 +155,7 @@ export function ProductPage() {
         </div>
 
         {/* ---------- buy column ---------- */}
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-5 min-w-0">
           <h1 className="display text-display-2 text-ink" data-reveal>{product.name}</h1>
           <p className="mt-3 text-body-lg tabular text-ink-soft" data-reveal style={revealDelay(1, 80)}>
             {formatCents(price)}
