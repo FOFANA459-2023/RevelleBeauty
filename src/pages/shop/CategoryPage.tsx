@@ -5,6 +5,7 @@ import { useCategories, useProducts } from '@/features/catalog/useCatalog';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { GoldRule } from '@/components/brand/GoldRule';
 import { cn } from '@/lib/cn';
+import { revealDelay, useReveal } from '@/lib/useReveal';
 
 /** Client-side instant filtering — the catalog is small, no request per keystroke. */
 
@@ -22,6 +23,7 @@ export function CategoryPage() {
   const { data: categories } = useCategories();
   // Shop-all fetches everything; category pages fetch their subtree.
   const { data, isPending } = useProducts({ category: activeCategory, limit: 60 });
+  const pageRef = useReveal<HTMLDivElement>([data?.products.length, activeCategory]);
 
   const [search, setSearch] = useState('');
   const [priceRange, setPriceRange] = useState('');
@@ -65,7 +67,7 @@ export function CategoryPage() {
   const hasActiveFilters = Boolean(search.trim() || priceRange || categoryFilter);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-gutter py-12">
+    <div ref={pageRef} className="mx-auto max-w-[1440px] px-gutter py-12">
       <nav className="eyebrow text-ink-muted flex items-center gap-2 flex-wrap" aria-label="Breadcrumb">
         <Link to="/shop" className="link-ink">Shop</Link>
         {parent && (
@@ -86,9 +88,11 @@ export function CategoryPage() {
         )}
       </nav>
 
-      <h1 className="display text-display-2 text-ink mt-6">{title}</h1>
+      <h1 className="display text-display-2 text-ink mt-6" data-reveal>{title}</h1>
       {current?.description && (
-        <p className="mt-3 text-body text-ink-soft max-w-xl">{current.description}</p>
+        <p className="mt-3 text-body text-ink-soft max-w-xl" data-reveal style={revealDelay(1, 80)}>
+          {current.description}
+        </p>
       )}
 
       {/* subcategory rail (e.g. Lips -> Lip Products & Oil / Lip Color) */}

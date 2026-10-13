@@ -4,6 +4,7 @@ import { useProducts } from '@/features/catalog/useCatalog';
 import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
 import { GoldRule } from '@/components/brand/GoldRule';
 import { hueAngle, shadeLabel } from '@/lib/shade';
+import { revealDelay, useReveal } from '@/lib/useReveal';
 
 /**
  * The one deliberately polychrome page: every shade as a large gloss dome,
@@ -11,6 +12,7 @@ import { hueAngle, shadeLabel } from '@/lib/shade';
  */
 export function ShadeLibraryPage() {
   const { data, isPending } = useProducts({ limit: 60 });
+  const pageRef = useReveal<HTMLDivElement>([data?.products.length]);
 
   const shades = useMemo(() => {
     const all = (data?.products ?? []).flatMap((p) =>
@@ -22,11 +24,13 @@ export function ShadeLibraryPage() {
   }, [data]);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-gutter py-12">
+    <div ref={pageRef} className="mx-auto max-w-[1440px] px-gutter py-12">
       <div className="text-center">
-        <p className="eyebrow text-gold-950">Every color we make</p>
-        <h1 className="display text-display-2 text-ink mt-4">The shade library</h1>
-        <GoldRule ornament className="w-44 mt-8 mx-auto" />
+        <p className="eyebrow text-gold-950" data-reveal>Every color we make</p>
+        <h1 className="display text-display-2 text-ink mt-4" data-reveal style={revealDelay(1, 90)}>
+          The shade library
+        </h1>
+        <GoldRule ornament className="w-44 mt-8 mx-auto" data-reveal="draw" style={revealDelay(2, 90)} />
       </div>
 
       {isPending ? (
@@ -37,8 +41,13 @@ export function ShadeLibraryPage() {
         </div>
       ) : (
         <ul className="mt-16 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-12">
-          {shades.map((s) => (
-            <li key={s.id} className="flex flex-col items-center text-center">
+          {shades.map((s, i) => (
+            <li
+              key={s.id}
+              className="flex flex-col items-center text-center"
+              data-reveal
+              style={revealDelay(i, 40, 600)}
+            >
               <Link
                 to={`/product/${s.productSlug}?shade=${s.slug}`}
                 className="group flex flex-col items-center gap-4"

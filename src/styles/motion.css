@@ -1,0 +1,171 @@
+/* The motion system. Couture motion is slow, eased, and sparse: things
+   arrive, they do not bounce. Every rule here has a reduced-motion answer at
+   the bottom of the file, and nothing here is load-bearing — with JavaScript
+   off, no element is left hidden (the reveal only arms itself once a root is
+   marked ready by useReveal).
+
+   THE RESTRAINT RULE: one thing moves at a time in a viewport. A section
+   rises, or a swatch blooms, or the bag pops — never all three at once. */
+
+@layer components {
+  /* === A. THE REVEAL — content rises into place as it is scrolled to. === */
+  [data-reveal-ready] [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, var(--reveal-shift, 20px), 0);
+    transition:
+      opacity 820ms var(--ease-couture),
+      transform 820ms var(--ease-couture);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal-ready] [data-reveal][data-revealed] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* A gold rule draws itself from the centre instead of rising. */
+  [data-reveal-ready] [data-reveal='draw'] {
+    opacity: 1;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 1100ms var(--ease-couture);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal-ready] [data-reveal='draw'][data-revealed] {
+    transform: scaleX(1);
+  }
+
+  /* Photography settles rather than rises: a held breath, then release. */
+  [data-reveal-ready] [data-reveal='still'] {
+    opacity: 0;
+    transform: scale(1.035);
+    transition:
+      opacity 1000ms var(--ease-couture),
+      transform 1400ms var(--ease-couture);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal-ready] [data-reveal='still'][data-revealed] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* === B. ARRIVALS — short, one-shot entrances. === */
+  @keyframes fadein {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* A new shade's gallery: the window fades up as it swaps. */
+  @keyframes window-in {
+    from {
+      opacity: 0;
+      transform: scale(1.015);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .window-in {
+    animation: window-in 520ms var(--ease-couture) both;
+  }
+
+  /* === C. THE SWATCH BLOOM — a selected dome throws one gold ring. ===
+     Sits on ::before; the sold-out slash owns ::after. */
+  .shade-swatch::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid var(--color-gold-700);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .shade-swatch[aria-checked='true']::before,
+  .shade-swatch[data-selected='true']::before {
+    animation: shade-bloom 760ms var(--ease-couture);
+  }
+  @keyframes shade-bloom {
+    0% {
+      opacity: 0.85;
+      transform: scale(0.78);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.65);
+    }
+  }
+
+  /* === D. THE BAG — the count pops when something lands in it. === */
+  @keyframes bag-pop {
+    0% {
+      transform: scale(0.4);
+    }
+    55% {
+      transform: scale(1.22);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .bag-pop {
+    animation: bag-pop 480ms var(--ease-swatch) both;
+  }
+
+  /* === E. ADDED — the confirmation reads as a small exhale. === */
+  @keyframes added-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 4px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .added-in {
+    animation: added-in 340ms var(--ease-couture) both;
+  }
+
+  /* === F. The sparkle turns, once, when it arrives. === */
+  @keyframes sparkle-turn {
+    from {
+      opacity: 0;
+      transform: rotate(-35deg) scale(0.6);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  [data-reveal-ready] [data-reveal='sparkle'] {
+    opacity: 0;
+  }
+  [data-reveal-ready] [data-reveal='sparkle'][data-revealed] {
+    animation: sparkle-turn 900ms var(--ease-swatch) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  /* === REDUCED MOTION: everything arrives, nothing travels. === */
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal-ready] [data-reveal],
+    [data-reveal-ready] [data-reveal='draw'],
+    [data-reveal-ready] [data-reveal='still'],
+    [data-reveal-ready] [data-reveal='sparkle'] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+      animation: none;
+    }
+    .window-in,
+    .bag-pop,
+    .added-in,
+    .shade-swatch[aria-checked='true']::before,
+    .shade-swatch[data-selected='true']::before {
+      animation: none;
+    }
+  }
+}

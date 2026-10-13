@@ -105,7 +105,11 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
                 <path d="M9 8V6a3 3 0 0 1 6 0v2" />
               </svg>
               {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-ink text-porcelain text-[0.6rem] grid place-items-center tabular">
+                /* keyed on the count so each arrival re-fires the pop */
+                <span
+                  key={itemCount}
+                  className="bag-pop absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-ink text-porcelain text-[0.6rem] grid place-items-center tabular"
+                >
                   {itemCount > 9 ? '9+' : itemCount}
                 </span>
               )}

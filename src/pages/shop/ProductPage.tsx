@@ -13,6 +13,7 @@ import { GoldRule } from '@/components/brand/GoldRule';
 import { Sparkle } from '@/components/brand/Sparkle';
 import { formatCents } from '@/lib/money';
 import { shadeLabel } from '@/lib/shade';
+import { revealDelay, useReveal } from '@/lib/useReveal';
 
 export function ProductPage() {
   const { productSlug } = useParams();
@@ -22,6 +23,7 @@ export function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const add = useCart((s) => s.add);
+  const pageRef = useReveal<HTMLDivElement>([product?.id, related?.length]);
 
   // Selected variant mirrors ?shade= — deep-linkable, back-button-correct.
   const selected: VariantDTO | null = useMemo(() => {
@@ -113,7 +115,7 @@ export function ProductPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[1440px] px-gutter py-8 lg:py-12">
+    <div ref={pageRef} className="mx-auto max-w-[1440px] px-gutter py-8 lg:py-12">
       <nav className="eyebrow text-ink-muted flex items-center gap-2" aria-label="Breadcrumb">
         <Link to="/shop" className="link-ink">Shop</Link>
         <span aria-hidden="true">/</span>
@@ -154,14 +156,18 @@ export function ProductPage() {
 
         {/* ---------- buy column ---------- */}
         <div className="lg:col-span-5">
-          <h1 className="display text-display-2 text-ink">{product.name}</h1>
-          <p className="mt-3 text-body-lg tabular text-ink-soft">{formatCents(price)}</p>
+          <h1 className="display text-display-2 text-ink" data-reveal>{product.name}</h1>
+          <p className="mt-3 text-body-lg tabular text-ink-soft" data-reveal style={revealDelay(1, 80)}>
+            {formatCents(price)}
+          </p>
           {product.tagline && (
-            <p className="mt-4 text-body text-ink-soft">{product.tagline}</p>
+            <p className="mt-4 text-body text-ink-soft" data-reveal style={revealDelay(2, 80)}>
+              {product.tagline}
+            </p>
           )}
 
           {/* THE SHADE PICKER — most whitespace in the column, on purpose */}
-          <div className="mt-14 mb-10">
+          <div className="mt-14 mb-10" data-reveal style={revealDelay(3, 80)}>
             <ShadePicker
               label={product.variantLabel}
               variants={product.variants}
@@ -170,7 +176,7 @@ export function ProductPage() {
             />
           </div>
 
-          <div className="flex gap-3 items-stretch">
+          <div className="flex gap-3 items-stretch" data-reveal style={revealDelay(4, 80)}>
             <QuantityStepper value={quantity} max={10} onChange={setQuantity} />
             <Button
               variant="metal"
@@ -180,7 +186,7 @@ export function ProductPage() {
               onClick={onAdd}
             >
               {added ? (
-                <span className="flex items-center gap-2">
+                <span className="added-in flex items-center gap-2">
                   <Sparkle size={11} /> Added
                 </span>
               ) : canBuy ? (
@@ -222,7 +228,7 @@ export function ProductPage() {
       {/* ---------- recommendations: content-scored on the server ---------- */}
       {related && related.length > 0 && (
         <section className="mt-section" aria-label="Recommended products">
-          <div className="text-center mb-10">
+          <div className="text-center mb-10" data-reveal>
             <p className="eyebrow text-gold-950">Complete the look</p>
             <h2 className="display text-h1 text-ink mt-4">You may also like</h2>
           </div>

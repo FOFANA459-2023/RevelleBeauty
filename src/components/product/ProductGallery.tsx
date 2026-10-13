@@ -63,7 +63,7 @@ export function ProductGallery({
   const described = shadeLabel ? `${productName}, ${shadeLabel}` : productName;
 
   return (
-    <div>
+    <div className="window-in">
       <div
         className="group relative"
         role="group"

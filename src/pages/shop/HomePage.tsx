@@ -8,6 +8,7 @@ import { GoldRule } from '@/components/brand/GoldRule';
 import { Sparkle } from '@/components/brand/Sparkle';
 import { Button } from '@/components/ui/Button';
 import { BrandVideo } from '@/components/media/BrandVideo';
+import { revealDelay, useReveal } from '@/lib/useReveal';
 import campaignImage from '@/assets/revelle-campaign.jpg';
 import logoImage from '@/assets/logo.jpg';
 
@@ -50,13 +51,20 @@ export function HomePage() {
   const { data: newest } = useProducts({ sort: 'newest', limit: 8 });
   const { data: settings } = useSettings();
 
+  // One observer for the whole page; it re-scans as each query lands.
+  const pageRef = useReveal<HTMLDivElement>([
+    featured?.products.length,
+    all?.products.length,
+    newest?.products.length,
+  ]);
+
   const allShades = (all?.products ?? [])
     .flatMap((p) => p.swatches.map((s) => ({ ...s, productSlug: p.slug })))
     .filter((s) => s.hexColor)
     .slice(0, 14);
 
   return (
-    <>
+    <div ref={pageRef}>
       {/* ============ 1. HERO — split editorial ============
           Desktop: text column left, a composed two-card media cluster right
           (image + video side by side, offset for rhythm — no floating
@@ -64,20 +72,20 @@ export function HomePage() {
       <section className="mx-auto max-w-[1440px] px-gutter">
         <div className="grid lg:grid-cols-12 items-center gap-10 lg:gap-12 min-h-[70svh] lg:min-h-[78svh] py-10 lg:py-8">
           <div className="order-2 lg:order-1 lg:col-span-5 text-center lg:text-left">
-            <p className="eyebrow text-gold-950">Revelle Beauty</p>
-            <h1 className="display text-display-1 text-ink mt-6">
+            <p className="eyebrow text-gold-950" data-reveal>Revelle Beauty</p>
+            <h1 className="display text-display-1 text-ink mt-6" data-reveal style={revealDelay(1, 90)}>
               Be you.
               <br />
               Be bold.
               <br />
               Be Revelle.
             </h1>
-            <GoldRule ornament className="w-44 mt-8 mx-auto lg:mx-0" />
-            <p className="mt-8 text-body-lg text-ink-soft max-w-md mx-auto lg:mx-0">
+            <GoldRule ornament className="w-44 mt-8 mx-auto lg:mx-0" data-reveal="draw" style={revealDelay(3, 90)} />
+            <p className="mt-8 text-body-lg text-ink-soft max-w-md mx-auto lg:mx-0" data-reveal style={revealDelay(4, 90)}>
               Lip color designed around one idea: the shade is the star, and
               everything else steps back.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4 justify-center lg:justify-start">
+            <div className="mt-10 flex flex-wrap gap-4 justify-center lg:justify-start" data-reveal style={revealDelay(5, 90)}>
               <Link to="/shop">
                 <Button variant="metal" size="lg">Shop the shades</Button>
               </Link>
@@ -85,7 +93,7 @@ export function HomePage() {
                 <Button variant="outline" size="lg">Discover skincare</Button>
               </Link>
             </div>
-            <div className="mt-10 hidden lg:flex items-center gap-8 text-xs text-ink-muted">
+            <div className="mt-10 hidden lg:flex items-center gap-8 text-xs text-ink-muted" data-reveal style={revealDelay(6, 90)}>
               <span>40+ shades</span>
               <span className="w-px h-4 bg-hairline" aria-hidden="true" />
               <span>Clean formulas</span>
@@ -95,7 +103,11 @@ export function HomePage() {
           </div>
 
           <div className="order-1 lg:order-2 lg:col-span-7">
-            <div className="grid grid-cols-[1fr_1.2fr] gap-4 lg:gap-5 items-center max-w-[420px] sm:max-w-[560px] lg:max-w-[680px] mx-auto lg:ml-auto lg:mr-0">
+            <div
+              className="grid grid-cols-[1fr_1.2fr] gap-4 lg:gap-5 items-center max-w-[420px] sm:max-w-[560px] lg:max-w-[680px] mx-auto lg:ml-auto lg:mr-0"
+              data-reveal="still"
+              style={revealDelay(2, 90)}
+            >
               <img
                 src={campaignImage}
                 alt="The Revelle campaign"
@@ -131,6 +143,7 @@ export function HomePage() {
           <Link
             to="/shop/lips"
             className="group relative rounded-xs overflow-hidden aspect-[16/10] block"
+            data-reveal="still"
           >
             <img
               src="/media/lips-tint-collection.jpg"
@@ -151,6 +164,8 @@ export function HomePage() {
           <Link
             to="/shop/skincare"
             className="group relative rounded-xs overflow-hidden aspect-[16/10] block bg-ivory-deep"
+            data-reveal="still"
+            style={revealDelay(1, 120)}
           >
             <img
               src="/media/revelle-story-poster.jpg"
@@ -174,15 +189,19 @@ export function HomePage() {
       {allShades.length > 0 && (
         <section className="mt-section">
           <div className="mx-auto max-w-[1440px] px-gutter text-center">
-            <p className="eyebrow text-gold-950">The palette</p>
-            <h2 className="display text-h1 text-ink mt-4">The shades</h2>
+            <p className="eyebrow text-gold-950" data-reveal>The palette</p>
+            <h2 className="display text-h1 text-ink mt-4" data-reveal style={revealDelay(1, 90)}>
+              The shades
+            </h2>
             <div className="mt-10 flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
-              {allShades.map((s) => (
+              {allShades.map((s, i) => (
                 <Link
                   key={s.id}
                   to={`/product/${s.productSlug}?shade=${s.slug}`}
                   aria-label={s.name}
                   className="group flex flex-col items-center gap-2"
+                  data-reveal
+                  style={revealDelay(i, 45, 480)}
                 >
                   <ShadeSwatch
                     hex={s.hexColor!}
@@ -209,8 +228,10 @@ export function HomePage() {
       <section className="mt-section">
         <div className="mx-auto max-w-[1440px] px-gutter">
           <div className="text-center mb-10">
-            <p className="eyebrow text-gold-950">In focus</p>
-            <h2 className="display text-h1 text-ink mt-4">Three ways to glow</h2>
+            <p className="eyebrow text-gold-950" data-reveal>In focus</p>
+            <h2 className="display text-h1 text-ink mt-4" data-reveal style={revealDelay(1, 90)}>
+              Three ways to glow
+            </h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {[
@@ -235,11 +256,13 @@ export function HomePage() {
                 eyebrow: 'Buff, smooth, prep',
                 title: 'Sugar Scrub',
               },
-            ].map((tile) => (
+            ].map((tile, i) => (
               <Link
                 key={tile.to}
                 to={tile.to}
                 className="group relative rounded-xs overflow-hidden aspect-[4/5] block"
+                data-reveal="still"
+                style={revealDelay(i, 110)}
               >
                 <img
                   src={tile.src}
@@ -262,7 +285,7 @@ export function HomePage() {
       {/* ============ 5. CAMPAIGN BANNER — the Revelle banner ============ */}
       <section className="mt-section bg-porcelain border-y border-hairline">
         <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-20 grid lg:grid-cols-2 items-center gap-12">
-          <div className="relative mx-auto w-full max-w-[520px]">
+          <div className="relative mx-auto w-full max-w-[520px]" data-reveal="still">
             <img
               src="/media/lips-high-shine-duo.jpg"
               alt="High Shine Lip Oil in Fuchsia Kiss and Coral"
@@ -276,24 +299,28 @@ export function HomePage() {
             />
           </div>
           <div className="text-center lg:text-left">
-            <p className="eyebrow text-gold-950">The campaign</p>
-            <h2 className="display text-display-2 text-ink mt-4">
+            <p className="eyebrow text-gold-950" data-reveal>The campaign</p>
+            <h2 className="display text-display-2 text-ink mt-4" data-reveal style={revealDelay(1, 90)}>
               The Revelle look
             </h2>
-            <p className="mt-6 text-body-lg text-ink-soft max-w-lg mx-auto lg:mx-0">
+            <p
+              className="mt-6 text-body-lg text-ink-soft max-w-lg mx-auto lg:mx-0"
+              data-reveal
+              style={revealDelay(2, 90)}
+            >
               One swipe of shine. Skin that glows on its own. This season's
               look is built on our High Shine Lip Oil — glass finish, weightless
               feel, and a shade range made to flatter every tone.
             </p>
             <ul className="mt-8 space-y-3 text-sm text-ink-soft max-w-md mx-auto lg:mx-0 text-left">
-              {['Mirror shine without the stick', 'Botanical oils condition over time', 'Eight shades, sheer to statement'].map((t) => (
-                <li key={t} className="flex items-start gap-3">
+              {['Mirror shine without the stick', 'Botanical oils condition over time', 'Eight shades, sheer to statement'].map((t, i) => (
+                <li key={t} className="flex items-start gap-3" data-reveal style={revealDelay(i + 3, 90)}>
                   <Sparkle size={12} className="text-gold-500 mt-1 shrink-0" />
                   {t}
                 </li>
               ))}
             </ul>
-            <Link to="/product/high-shine-lip-oil" className="inline-block mt-10">
+            <Link to="/product/high-shine-lip-oil" className="inline-block mt-10" data-reveal style={revealDelay(6, 90)}>
               <Button variant="metal" size="lg">Get the look — $22</Button>
             </Link>
           </div>
@@ -304,7 +331,7 @@ export function HomePage() {
       <section className="mt-section">
         <div className="mx-auto max-w-[1440px] px-gutter">
           <div className="flex items-end justify-between mb-10">
-            <div>
+            <div data-reveal>
               <p className="eyebrow text-gold-950">Bestsellers</p>
               <h2 className="display text-h1 text-ink mt-4">The collection</h2>
             </div>
@@ -321,13 +348,15 @@ export function HomePage() {
         <section className="mt-section">
           <div className="mx-auto max-w-[1440px] px-gutter">
             <div className="flex items-end justify-between mb-8">
-              <div>
+              <div data-reveal>
                 <p className="eyebrow text-gold-950">Just landed</p>
                 <h2 className="display text-h1 text-ink mt-4">New arrivals</h2>
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto pb-4">
+          {/* The rail arrives whole: staggering cards that sit off to the right
+              would leave them invisible until someone scrolls sideways. */}
+          <div className="overflow-x-auto pb-4" data-reveal>
             <div className="flex gap-5 px-gutter mx-auto max-w-[1440px] w-max min-w-full">
               {newest!.products.map((p) => (
                 <div key={p.id} className="w-[240px] sm:w-[280px] shrink-0">
@@ -342,13 +371,18 @@ export function HomePage() {
       {/* ============ 8. TESTIMONIALS ============ */}
       <section className="mt-section bg-ivory-deep/60 border-y border-hairline">
         <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-20">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" data-reveal>
             <p className="eyebrow text-gold-950">Loved loudly</p>
             <h2 className="display text-h1 text-ink mt-4">From the Revelle community</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {TESTIMONIALS.map((t) => (
-              <figure key={t.name} className="bg-porcelain border border-hairline rounded-sm p-7 flex flex-col">
+            {TESTIMONIALS.map((t, i) => (
+              <figure
+                key={t.name}
+                className="bg-porcelain border border-hairline rounded-sm p-7 flex flex-col"
+                data-reveal
+                style={revealDelay(i, 110)}
+              >
                 <div className="flex gap-1 text-gold-700" aria-label="5 out of 5 stars">
                   {Array.from({ length: 5 }, (_, i) => (
                     <Sparkle key={i} size={11} />
@@ -370,10 +404,13 @@ export function HomePage() {
       {/* ============ 9. STORY VIDEO band ============ */}
       <section className="mt-section">
         <div className="mx-auto max-w-[1440px] px-gutter grid lg:grid-cols-2 items-center gap-12">
-          <div className="mx-auto max-w-[360px] w-full aspect-[9/16] rounded-xs metal-ring overflow-hidden order-1 lg:order-2">
+          <div
+            className="mx-auto max-w-[360px] w-full aspect-[9/16] rounded-xs metal-ring overflow-hidden order-1 lg:order-2"
+            data-reveal="still"
+          >
             <BrandVideo src="/media/revelle-story.mp4" poster="/media/revelle-story-poster.jpg" preload="none" className="h-full w-full" />
           </div>
-          <div className="text-center lg:text-left order-2 lg:order-1">
+          <div className="text-center lg:text-left order-2 lg:order-1" data-reveal style={revealDelay(1, 120)}>
             <p className="eyebrow text-gold-950">Our philosophy</p>
             <h2 className="display text-h1 text-ink mt-4">Color belongs to you</h2>
             <p className="mt-6 text-body-lg text-ink-soft max-w-lg mx-auto lg:mx-0">
@@ -392,8 +429,13 @@ export function HomePage() {
       <section className="mt-section">
         <div className="mx-auto max-w-[1440px] px-gutter">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {VALUE_PROPS.map((v) => (
-              <div key={v.title} className="border border-hairline rounded-sm bg-porcelain p-6 text-center">
+            {VALUE_PROPS.map((v, i) => (
+              <div
+                key={v.title}
+                className="border border-hairline rounded-sm bg-porcelain p-6 text-center"
+                data-reveal
+                style={revealDelay(i, 90)}
+              >
                 <Sparkle size={16} className="text-gold-500" />
                 <h3 className="eyebrow text-ink mt-4">{v.title}</h3>
                 <p className="mt-2 text-xs text-ink-muted leading-relaxed">{v.body}</p>
@@ -405,7 +447,7 @@ export function HomePage() {
 
       {/* ============ 11. NEWSLETTER ============ */}
       <NewsletterBand announcement={settings?.announcement ?? null} />
-    </>
+    </div>
   );
 }
 

@@ -1,6 +1,7 @@
 import type { ProductSummaryDTO } from '@contracts/index';
 import { ProductCard } from './ProductCard';
 import { Sparkle } from '@/components/brand/Sparkle';
+import { revealDelay, useReveal } from '@/lib/useReveal';
 
 /** 2 cols on mobile (shade ranges scan better), 3 at md, 4 at xl. */
 export function ProductGrid({
@@ -12,6 +13,8 @@ export function ProductGrid({
   loading?: boolean;
   emptyMessage?: string;
 }) {
+  // Cards deal themselves in, left to right, as the grid is scrolled to.
+  const gridRef = useReveal<HTMLDivElement>([products.length, loading]);
   if (loading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
@@ -37,9 +40,11 @@ export function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-      {products.map((p) => (
-        <ProductCard key={p.id} product={p} />
+    <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      {products.map((p, i) => (
+        <div key={p.id} data-reveal style={revealDelay(i)}>
+          <ProductCard product={p} />
+        </div>
       ))}
     </div>
   );
