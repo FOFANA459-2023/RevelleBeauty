@@ -1,5 +1,14 @@
 /** Shade color utilities. All hexes are lowercase #rrggbb (server-normalized). */
 
+/**
+ * How a shade is written everywhere a shopper sees it: "HS01 Crystal Clear".
+ * The code comes off the maker's line sheet; products without codes read as
+ * the plain name.
+ */
+export function shadeLabel(shade: { shadeCode?: string | null; name: string }): string {
+  return shade.shadeCode ? `${shade.shadeCode} ${shade.name}` : shade.name;
+}
+
 export function isValidHex(s: string): boolean {
   return /^#[0-9a-f]{6}$/i.test(s);
 }

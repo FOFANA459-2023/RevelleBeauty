@@ -63,6 +63,7 @@ function VariantRow({
   onChanged: () => void;
 }) {
   const [name, setName] = useState(variant.name);
+  const [shadeCode, setShadeCode] = useState(variant.shadeCode ?? '');
   const [hexText, setHexText] = useState(variant.hexColor ?? '');
   const [stock, setStock] = useState(String(variant.stockQuantity));
   const [saving, setSaving] = useState(false);
@@ -140,6 +141,21 @@ function VariantRow({
             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
           />
         </span>
+
+        <div>
+          <input
+            aria-label="Shade code"
+            placeholder="HS01"
+            className={`${input} w-20 tabular uppercase`}
+            value={shadeCode}
+            onChange={(e) => setShadeCode(e.target.value)}
+            onBlur={() => {
+              const next = shadeCode.trim().toUpperCase();
+              if (next !== (variant.shadeCode ?? '')) void patch({ shadeCode: next || null });
+            }}
+          />
+          <p className="mt-1 text-[11px] text-ink-muted pl-0.5">Code</p>
+        </div>
 
         <div>
           <input

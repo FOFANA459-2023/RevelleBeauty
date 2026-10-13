@@ -4,6 +4,7 @@ import type { VariantDTO } from '@contracts/index';
 import { useProduct, useRelatedProducts } from '@/features/catalog/useCatalog';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { useCart } from '@/features/cart/cartStore';
+import { ProductGallery } from '@/components/product/ProductGallery';
 import { ShadePicker } from '@/components/shade/ShadePicker';
 import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
 import { QuantityStepper } from '@/components/product/QuantityStepper';
@@ -11,7 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { GoldRule } from '@/components/brand/GoldRule';
 import { Sparkle } from '@/components/brand/Sparkle';
 import { formatCents } from '@/lib/money';
-import { cn } from '@/lib/cn';
+import { shadeLabel } from '@/lib/shade';
 
 export function ProductPage() {
   const { productSlug } = useParams();
@@ -42,15 +43,18 @@ export function ProductPage() {
     }, { replace: false });
   };
 
-  // Gallery: variant image wins, else primary, crossfade on change.
-  const heroImage = useMemo(() => {
-    if (!product) return null;
-    if (selected?.imageId) {
-      const vi = product.images.find((i) => i.id === selected.imageId);
-      if (vi) return vi;
-    }
-    return product.images.find((i) => i.isPrimary) ?? product.images[0] ?? null;
+  // The shade's own window: its photographs first, then the shots that belong
+  // to the product as a whole (line sheets, shade charts, lifestyle).
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    const own = selected ? product.images.filter((i) => i.variantId === selected.id) : [];
+    const shared = product.images.filter((i) => i.variantId === null);
+    return [...own, ...shared];
   }, [product, selected]);
+
+  // The cart line snapshots the shade's own first photograph, never a shade
+  // chart the shopper happened to be looking at.
+  const shadeImage = galleryImages[0] ?? null;
 
   useEffect(() => {
     setQuantity(1);
@@ -95,10 +99,10 @@ export function ProductPage() {
         productId: product.id,
         productSlug: product.slug,
         productName: product.name,
-        shadeName: selected.name,
+        shadeName: shadeLabel(selected),
         shadeHex: selected.hexColor,
         shadeHexSecondary: selected.hexColorSecondary,
-        imageUrl: heroImage?.url ?? null,
+        imageUrl: shadeImage?.url ?? null,
         unitPriceCents: selected.priceCents,
         maxQuantity: 10,
       },
@@ -122,40 +126,27 @@ export function ProductPage() {
         {/* ---------- gallery ---------- */}
         <div className="lg:col-span-7">
           <div className="lg:sticky lg:top-24">
-            <div className="aspect-[4/5] bg-ivory-deep rounded-xs overflow-hidden grid place-items-center">
-              {heroImage ? (
-                <img
-                  key={heroImage.id}
-                  src={heroImage.url}
-                  alt={heroImage.altText ?? product.name}
-                  className="h-full w-full object-contain animate-[fadein_400ms_ease]"
-                />
-              ) : isShade && selected?.hexColor ? (
-                <ShadeSwatch
-                  key={selected.id}
-                  hex={selected.hexColor}
-                  hexSecondary={selected.hexColorSecondary}
-                  name={selected.name}
-                  size={180}
-                  interactive={false}
-                />
-              ) : (
-                <span className="font-display text-6xl text-gold-300 select-none">RB</span>
-              )}
-            </div>
-            {product.images.length > 1 && (
-              <div className="mt-4 flex gap-3">
-                {product.images.slice(0, 5).map((img) => (
-                  <div
-                    key={img.id}
-                    className={cn(
-                      'w-20 aspect-square bg-ivory-deep rounded-xs overflow-hidden border',
-                      heroImage?.id === img.id ? 'border-gold-700' : 'border-hairline',
-                    )}
-                  >
-                    <img src={img.url} alt="" className="h-full w-full object-contain" />
-                  </div>
-                ))}
+            {galleryImages.length > 0 ? (
+              <ProductGallery
+                key={selected?.id ?? 'product'}
+                images={galleryImages}
+                productName={product.name}
+                shadeLabel={selected ? shadeLabel(selected) : null}
+              />
+            ) : (
+              <div className="aspect-[4/5] bg-ivory-deep rounded-xs overflow-hidden grid place-items-center">
+                {isShade && selected?.hexColor ? (
+                  <ShadeSwatch
+                    key={selected.id}
+                    hex={selected.hexColor}
+                    hexSecondary={selected.hexColorSecondary}
+                    name={selected.name}
+                    size={180}
+                    interactive={false}
+                  />
+                ) : (
+                  <span className="font-display text-6xl text-gold-300 select-none">RB</span>
+                )}
               </div>
             )}
           </div>

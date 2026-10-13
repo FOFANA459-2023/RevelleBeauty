@@ -7,9 +7,9 @@ import type { Page } from '@playwright/test';
  */
 
 const swatches = [
-  { id: 'v1', name: 'Clear Glaze', slug: 'clear-glaze', hexColor: '#f6ece4', hexColorSecondary: null },
-  { id: 'v2', name: 'Rose Elixir', slug: 'rose-elixir', hexColor: '#d9738a', hexColorSecondary: null },
-  { id: 'v3', name: 'Cherry Sheen', slug: 'cherry-sheen', hexColor: '#b03246', hexColorSecondary: null },
+  { id: 'v1', name: 'Clear Glaze', slug: 'clear-glaze', shadeCode: null, hexColor: '#f6ece4', hexColorSecondary: null },
+  { id: 'v2', name: 'Rose Elixir', slug: 'rose-elixir', shadeCode: null, hexColor: '#d9738a', hexColorSecondary: null },
+  { id: 'v3', name: 'Cherry Sheen', slug: 'cherry-sheen', shadeCode: null, hexColor: '#b03246', hexColorSecondary: null },
 ];
 
 const summary = {
@@ -39,7 +39,7 @@ const summary2 = {
   priceMaxCents: 2400,
   isFeatured: false,
   swatches: [
-    { id: 'v9', name: 'Classic Red', slug: 'classic-red', hexColor: '#b31b2c', hexColorSecondary: null },
+    { id: 'v9', name: 'Classic Red', slug: 'classic-red', shadeCode: null, hexColor: '#b31b2c', hexColorSecondary: null },
   ],
 };
 

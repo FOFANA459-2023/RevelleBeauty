@@ -3,6 +3,7 @@ import type { KeyboardEvent } from 'react';
 import type { VariantDTO } from '@contracts/index';
 import { ShadeSwatch } from './ShadeSwatch';
 import { ShadeBar } from './ShadeBar';
+import { shadeLabel } from '@/lib/shade';
 
 /**
  * The visual hero of the product page. radiogroup + roving tabindex,
@@ -50,8 +51,11 @@ export function ShadePicker({
       <div className="flex items-baseline justify-between gap-4">
         <span className="eyebrow text-ink-muted">{label}</span>
         {value && (
-          <span className="shade-name text-h3 text-ink" aria-live="polite">
-            {value.name}
+          <span className="flex items-baseline gap-2" aria-live="polite">
+            {value.shadeCode && (
+              <span className="eyebrow tabular text-ink-muted">{value.shadeCode}</span>
+            )}
+            <span className="shade-name text-h3 text-ink">{value.name}</span>
           </span>
         )}
       </div>
@@ -68,7 +72,7 @@ export function ShadePicker({
             key={s.id}
             hex={s.hexColor!}
             hexSecondary={s.hexColorSecondary}
-            name={s.name}
+            name={shadeLabel(s)}
             selected={value?.id === s.id}
             soldOut={!s.inStock}
             tabIndex={value?.id === s.id ? 0 : -1}

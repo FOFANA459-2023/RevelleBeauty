@@ -21,8 +21,8 @@ const PRODUCT: ProductSummaryDTO = {
   inStock: true,
   primaryImage: null,
   swatches: [
-    { id: 'v1', name: 'Rose Elixir', slug: 'rose-elixir', hexColor: '#d9738a', hexColorSecondary: null },
-    { id: 'v2', name: 'Cherry Sheen', slug: 'cherry-sheen', hexColor: '#b03246', hexColorSecondary: null },
+    { id: 'v1', name: 'Rose Elixir', slug: 'rose-elixir', shadeCode: null, hexColor: '#d9738a', hexColorSecondary: null },
+    { id: 'v2', name: 'Cherry Sheen', slug: 'cherry-sheen', shadeCode: null, hexColor: '#b03246', hexColorSecondary: null },
   ],
 };
 

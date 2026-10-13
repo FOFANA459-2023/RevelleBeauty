@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useProducts } from '@/features/catalog/useCatalog';
 import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
 import { GoldRule } from '@/components/brand/GoldRule';
-import { hueAngle } from '@/lib/shade';
+import { hueAngle, shadeLabel } from '@/lib/shade';
 
 /**
  * The one deliberately polychrome page: every shade as a large gloss dome,
@@ -46,12 +46,17 @@ export function ShadeLibraryPage() {
                 <ShadeSwatch
                   hex={s.hexColor!}
                   hexSecondary={s.hexColorSecondary}
-                  name={s.name}
+                  name={shadeLabel(s)}
                   size={120}
                   interactive={false}
                   className="group-hover:scale-105 transition-transform duration-500"
                 />
-                <span className="shade-name text-h3 text-ink">{s.name}</span>
+                <span className="flex items-baseline gap-2">
+                  {s.shadeCode && (
+                    <span className="eyebrow tabular text-ink-muted">{s.shadeCode}</span>
+                  )}
+                  <span className="shade-name text-h3 text-ink">{s.name}</span>
+                </span>
                 <span className="eyebrow text-[0.6rem] text-ink-muted">{s.productName}</span>
               </Link>
             </li>

@@ -9,6 +9,7 @@ const variant = (over: Partial<VariantDTO>): VariantDTO => ({
   id: 'v1',
   name: 'Rose Elixir',
   slug: 'rose-elixir',
+  shadeCode: null,
   hexColor: '#d9738a',
   hexColorSecondary: null,
   finish: 'glossy',
@@ -62,6 +63,18 @@ describe('ShadePicker', () => {
     expect(screen.getByRole('radiogroup', { name: 'Shade' })).toBeInTheDocument();
     expect(screen.getByText('Rose Elixir')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'Rose Elixir' })).toBeChecked();
+  });
+
+  it('shows the maker shade code beside the name, Dior-style', () => {
+    const coded = [
+      variant({ id: 'c1', name: 'Crystal Clear', slug: 'hs01-crystal-clear', shadeCode: 'HS01', hexColor: '#f2efec' }),
+      variant({ id: 'c2', name: 'Cherry Red', slug: 'hs06-cherry-red', shadeCode: 'HS06', hexColor: '#e6241c' }),
+    ];
+    render(<ShadePicker label="Shade" variants={coded} value={coded[0]!} onChange={() => {}} />);
+    expect(screen.getByText('HS01')).toBeInTheDocument();
+    expect(screen.getByText('Crystal Clear')).toBeInTheDocument();
+    // The swatch itself is labelled with both, so screen readers announce the code.
+    expect(screen.getByRole('radio', { name: 'HS06 Cherry Red' })).toBeInTheDocument();
   });
 
   it('selects on click', async () => {

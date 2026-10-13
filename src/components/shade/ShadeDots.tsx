@@ -1,5 +1,6 @@
 import type { SwatchDTO } from '@contracts/index';
 import { ShadeSwatch } from './ShadeSwatch';
+import { shadeLabel } from '@/lib/shade';
 
 /**
  * The tiny dome row on product cards — the grid's entire color budget.
@@ -18,7 +19,7 @@ export function ShadeDots({ swatches, max = 5 }: { swatches: SwatchDTO[]; max?: 
           key={s.id}
           hex={s.hexColor!}
           hexSecondary={s.hexColorSecondary}
-          name={s.name}
+          name={shadeLabel(s)}
           size={12}
           interactive={false}
         />
