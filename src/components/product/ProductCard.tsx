@@ -30,6 +30,11 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
   const [shade, setShade] = useState<SwatchDTO | null>(null);
   const [active, setActive] = useState(false);
   const [frame, setFrame] = useState(0);
+  // The reel is not mounted until a pointer has actually arrived. Rendering it
+  // upfront meant a grid of twelve cards fetched sixty photographs on load to
+  // show twelve; once mounted it stays, so the fade out still has something to
+  // fade and a second hover is instant.
+  const [touched, setTouched] = useState(false);
 
   // A shade bead wins over the frame; otherwise the product's own photographs.
   // Guarded: the Worker can be a deploy ahead of the API, and an older API
@@ -43,6 +48,7 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
   const previewShade = (swatch: SwatchDTO | null) => {
     if (swatch?.imageUrls?.length) setShade(swatch);
     else setShade(null);
+    if (swatch) setTouched(true);
     setActive(Boolean(swatch));
   };
 
@@ -68,7 +74,7 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
     >
       <div
         className="relative aspect-[4/5] bg-ivory-deep overflow-hidden"
-        onMouseEnter={() => setActive(true)}
+        onMouseEnter={() => { setTouched(true); setActive(true); }}
         onMouseLeave={() => setActive(false)}
       >
         {product.primaryImage ? (
@@ -87,7 +93,7 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
         )}
 
         {/* The reel dissolves over the primary, and back off it on the way out. */}
-        {reel.map((url, i) => (
+        {touched && reel.map((url, i) => (
           <img
             key={url}
             src={url}

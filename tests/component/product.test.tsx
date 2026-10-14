@@ -109,7 +109,10 @@ describe('ProductCard', () => {
     const shown = () => reel.findIndex((src) =>
       document.querySelector(`img[src="${src}"]`)?.className.includes('opacity-100'));
 
-    expect(shown()).toBe(-1); // nothing showing until the pointer arrives
+    // Nothing of the reel exists until the pointer arrives — a grid must not
+    // fetch every card's reel just to render the grid.
+    expect(shown()).toBe(-1);
+    for (const src of reel) expect(document.querySelector(`img[src="${src}"]`)).toBeNull();
 
     // The frame is the link's first child — the photograph's mat.
     await user.hover(screen.getByRole('link').firstElementChild!);
