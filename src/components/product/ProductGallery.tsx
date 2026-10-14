@@ -251,7 +251,7 @@ export function ProductGallery({
               )}
             >
               <img
-                src={img.url}
+                src={img.thumbUrl}
                 alt=""
                 loading="lazy"
                 decoding="async"

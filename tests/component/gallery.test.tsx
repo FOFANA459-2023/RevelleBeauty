@@ -14,6 +14,7 @@ beforeAll(() => {
 const image = (n: number, variantId: string | null): ImageDTO => ({
   id: `i${n}`,
   url: `/uploads/${n}.webp`,
+  thumbUrl: `/uploads/${n}-sm.webp`,
   altText: `photo ${n}`,
   width: 1200,
   height: 1500,

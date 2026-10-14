@@ -103,7 +103,7 @@ export function ImagePanel({ product }: { product: AdminProductDetailDTO }) {
           {product.images.map((img) => (
             <li key={img.id} className="border border-hairline rounded-md overflow-hidden bg-ivory/40">
               <div className="aspect-square bg-ivory-deep grid place-items-center overflow-hidden">
-                <img src={img.url} alt={img.altText ?? ''} className="h-full w-full object-contain" />
+                <img src={img.thumbUrl} alt={img.altText ?? ''} loading="lazy" className="h-full w-full object-contain" />
               </div>
               <div className="p-2.5 space-y-2">
                 <select

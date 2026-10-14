@@ -7,8 +7,13 @@ import { formatPriceRange } from '@/lib/money';
 import { shadeLabel } from '@/lib/shade';
 import { cn } from '@/lib/cn';
 
-/** How long one photograph holds before the card turns to the next. */
-const FRAME_MS = 1300;
+/**
+ * How long one photograph holds before the card turns to the next. Quick
+ * enough to feel like an answer to the pointer rather than a slideshow —
+ * the crossfade below is shorter still, so the turn reads as instant without
+ * being a cut.
+ */
+const FRAME_MS = 620;
 
 /**
  * Neutral card: porcelain surface, hairline border, ivory-deep image mat.
@@ -68,7 +73,7 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
       >
         {product.primaryImage ? (
           <img
-            src={product.primaryImage.url}
+            src={product.primaryImage.thumbUrl}
             alt={product.primaryImage.altText ?? product.name}
             width={product.primaryImage.width ?? undefined}
             height={product.primaryImage.height ?? undefined}
@@ -91,7 +96,7 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
             decoding="async"
             className={cn(
               'absolute inset-0 h-full w-full object-contain',
-              'transition-opacity duration-[900ms] scale-[1.03]',
+              'transition-opacity duration-[260ms] scale-[1.03]',
               showing && i === frame ? 'opacity-100' : 'opacity-0',
             )}
             style={{ transitionTimingFunction: 'var(--ease-couture)' }}

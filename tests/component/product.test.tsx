@@ -84,7 +84,7 @@ describe('ProductCard', () => {
       '/product/high-shine-lip-oil?shade=rose-elixir',
     );
 
-    const turn = async () => { await act(async () => { await vi.advanceTimersByTimeAsync(1400); }); };
+    const turn = async () => { await act(async () => { await vi.advanceTimersByTimeAsync(700); }); };
     await turn();
     expect(shown()).toBe(1);
     await turn();
@@ -115,7 +115,7 @@ describe('ProductCard', () => {
     await user.hover(screen.getByRole('link').firstElementChild!);
     expect(shown()).toBe(0);
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(1300); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(700); });
     expect(shown()).toBe(1);
 
     // The frame is the product, not a shade — the tagline keeps its line.
