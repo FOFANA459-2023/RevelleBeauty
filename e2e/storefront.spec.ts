@@ -31,9 +31,9 @@ test.describe('shop', () => {
 
   test('price filter works', async ({ page }) => {
     await page.goto('/shop');
-    await page.getByLabel('Filter by price').selectOption('20-30');
+    await page.getByLabel('Filter by price').selectOption('10-20');
     await expect(page.getByText('High Shine Lip Oil')).toBeVisible();
-    await page.getByLabel('Filter by price').selectOption('under-20');
+    await page.getByLabel('Filter by price').selectOption('under-10');
     await expect(page.getByText('Nothing matches those filters.')).toBeVisible();
   });
 });
@@ -68,7 +68,7 @@ test.describe('product page', () => {
     const drawer = page.getByRole('dialog', { name: 'Shopping bag' });
     await expect(drawer.getByText('High Shine Lip Oil')).toBeVisible();
     await expect(drawer.getByText('Cherry Sheen')).toBeVisible();
-    await expect(drawer.getByText('$22.00').first()).toBeVisible();
+    await expect(drawer.getByText('$14.99').first()).toBeVisible();
   });
 
   test('cart persists across a reload (localStorage)', async ({ page }) => {
