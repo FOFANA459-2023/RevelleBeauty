@@ -9,6 +9,7 @@ import { Sparkle } from '@/components/brand/Sparkle';
 import { Button } from '@/components/ui/Button';
 import { BrandVideo } from '@/components/media/BrandVideo';
 import { revealDelay, useReveal } from '@/lib/useReveal';
+import { formatCents } from '@/lib/money';
 import campaignImage from '@/assets/revelle-campaign.jpg';
 import logoImage from '@/assets/logo.jpg';
 
@@ -57,6 +58,10 @@ export function HomePage() {
     all?.products.length,
     newest?.products.length,
   ]);
+
+  // The campaign CTA quotes a real price rather than a baked-in one — a
+  // hardcoded "$22" outlived two price changes before this.
+  const campaignProduct = (all?.products ?? []).find((p) => p.slug === 'high-shine-lip-oil');
 
   const allShades = (all?.products ?? [])
     .flatMap((p) => p.swatches.map((s) => ({ ...s, productSlug: p.slug })))
@@ -349,7 +354,11 @@ export function HomePage() {
               ))}
             </ul>
             <Link to="/product/high-shine-lip-oil" className="inline-block mt-10" data-reveal style={revealDelay(6, 90)}>
-              <Button variant="metal" size="lg">Get the look — $22</Button>
+              <Button variant="metal" size="lg">
+                {campaignProduct
+                  ? `Get the look — ${formatCents(campaignProduct.priceCents)}`
+                  : 'Get the look'}
+              </Button>
             </Link>
           </div>
         </div>

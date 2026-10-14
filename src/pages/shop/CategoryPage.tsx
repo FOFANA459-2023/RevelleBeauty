@@ -11,9 +11,9 @@ import { revealDelay, useReveal } from '@/lib/useReveal';
 
 const PRICE_RANGES = [
   { value: '', label: 'All prices', min: 0, max: Infinity },
-  { value: 'under-20', label: 'Under $20', min: 0, max: 1999 },
-  { value: '20-30', label: '$20 – $30', min: 2000, max: 3000 },
-  { value: 'over-30', label: 'Over $30', min: 3001, max: Infinity },
+  { value: 'under-10', label: 'Under $10', min: 0, max: 999 },
+  { value: '10-20', label: '$10 – $20', min: 1000, max: 1999 },
+  { value: 'over-20', label: 'Over $20', min: 2000, max: Infinity },
 ] as const;
 
 export function CategoryPage() {
