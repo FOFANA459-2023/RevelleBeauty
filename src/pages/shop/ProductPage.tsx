@@ -66,7 +66,7 @@ export function ProductPage() {
   if (isPending) {
     return (
       <div className="mx-auto max-w-[1440px] px-gutter py-12 grid lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-7"><div className="skeleton aspect-[4/5]" /></div>
+        <div className="lg:col-span-7"><div className="skeleton aspect-square" /></div>
         <div className="lg:col-span-5 space-y-4">
           <div className="skeleton h-4 w-32" />
           <div className="skeleton h-12 w-3/4" />
@@ -136,7 +136,7 @@ export function ProductPage() {
                 shadeLabel={selected ? shadeLabel(selected) : null}
               />
             ) : (
-              <div className="aspect-[4/5] bg-ivory-deep rounded-xs overflow-hidden grid place-items-center">
+              <div className="aspect-square bg-porcelain rounded-xs overflow-hidden grid place-items-center">
                 {isShade && selected?.hexColor ? (
                   <ShadeSwatch
                     key={selected.id}

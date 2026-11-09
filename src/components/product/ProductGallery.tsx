@@ -11,6 +11,11 @@ import { cn } from '@/lib/cn';
  * scrollLeft, so swipe, arrows and thumbnails all agree without fighting.
  *
  * Mount it with key={shade.id}: a new shade is a new window, scrolled home.
+ *
+ * The stage is square and white because every photograph arrives as a square
+ * tile with the product trimmed and centred on its own backdrop (see the
+ * importer). Tile and stage coincide, so no shot can letterbox — whatever
+ * shape it was taken in.
  */
 export function ProductGallery({
   images,
@@ -29,11 +34,14 @@ export function ProductGallery({
   const glide = useRef<number | null>(null);
 
   /**
-   * Depth, driven straight off scrollLeft rather than by a transition: the
-   * photograph a shopper is dragging toward drifts in against the direction of
-   * travel, grows to full size and clears, while the one leaving falls back.
-   * A flat horizontal slide of letterboxed product shots mostly moves empty
-   * mat around; this is what makes it read as a gallery.
+   * Depth, driven straight off scrollLeft rather than by a transition: each
+   * photograph lags behind its own frame as it travels — classic parallax — so
+   * the one arriving slides in a beat behind and grows to full size, while the
+   * one leaving falls back.
+   *
+   * The lag points away from the centre. It once pointed toward it, which at
+   * rest pulled both neighbours ~14% into view at half opacity: a ghost of the
+   * next and previous photo over each edge of the current one.
    */
   const paint = useCallback(() => {
     const el = trackRef.current;
@@ -51,7 +59,7 @@ export function ProductGallery({
       const away = Math.min(Math.abs(p), 1);
       // Transform only — the hover lean uses the `scale` property, so the two
       // compose instead of overwriting each other.
-      shot.style.transform = `translate3d(${p * -18}%, 0, 0) scale(${1 - away * 0.08})`;
+      shot.style.transform = `translate3d(${p * 18}%, 0, 0) scale(${1 - away * 0.08})`;
       shot.style.opacity = String(1 - away * 0.55);
     }
   }, []);
@@ -172,7 +180,7 @@ export function ProductGallery({
           onTouchStart={stopGlide}
           tabIndex={0}
           className={cn(
-            'flex overflow-x-auto snap-x snap-mandatory bg-ivory-deep rounded-xs',
+            'flex overflow-x-auto snap-x snap-mandatory bg-porcelain rounded-xs',
             'overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-700',
           )}
@@ -180,7 +188,7 @@ export function ProductGallery({
           {images.map((img, i) => (
             <div
               key={img.id}
-              className="w-full shrink-0 snap-center aspect-[4/5] grid place-items-center"
+              className="w-full shrink-0 snap-center aspect-square grid place-items-center"
               aria-label={`${i + 1} of ${count}`}
               role="group"
               aria-roledescription="slide"
@@ -243,7 +251,7 @@ export function ProductGallery({
               aria-label={`Show photograph ${i + 1} of ${count}`}
               aria-current={i === index}
               className={cn(
-                'shrink-0 w-16 sm:w-20 aspect-square bg-ivory-deep rounded-xs overflow-hidden',
+                'shrink-0 w-16 sm:w-20 aspect-square bg-porcelain rounded-xs overflow-hidden',
                 'border cursor-pointer transition-[colors,transform] duration-300',
                 'motion-safe:hover:-translate-y-0.5',
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-700',
