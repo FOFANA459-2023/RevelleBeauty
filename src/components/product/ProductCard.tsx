@@ -16,7 +16,11 @@ import { cn } from '@/lib/cn';
 const FRAME_MS = 620;
 
 /**
- * Neutral card: porcelain surface, hairline border, ivory-deep image mat.
+ * Neutral card: porcelain surface, hairline border, square white image tile.
+ * The tile is white because the photography is shot on white: an ivory mat
+ * around a white photo read as cream bands above and below every product.
+ * The tiles themselves are pre-cropped square by the importer, so the frame
+ * and the file agree and nothing letterboxes.
  * Hover = motion + a growing gold hairline. Never a hue change.
  *
  * The card turns through photographs under the pointer, one crossfade at a
@@ -73,7 +77,7 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
       className="group block bg-porcelain rounded-xs border border-hairline overflow-hidden"
     >
       <div
-        className="relative aspect-[4/5] bg-ivory-deep overflow-hidden"
+        className="relative aspect-square bg-porcelain overflow-hidden"
         onMouseEnter={() => { setTouched(true); setActive(true); }}
         onMouseLeave={() => setActive(false)}
       >
