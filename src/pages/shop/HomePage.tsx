@@ -73,29 +73,41 @@ export function HomePage() {
       {/* ============ 1. HERO — split editorial ============
           Desktop: text column left, a composed two-card media cluster right
           (image + video side by side, offset for rhythm — no floating
-          overlaps). One primary path: the shop. */}
+          overlaps). One primary path: the shop.
+          Phone: the whole introduction fits the first screen with the shop
+          button in it — shorter photo pair, a smaller slogan, no eyebrow
+          (the header already says Revelle) and no paragraph. */}
       <section className="mx-auto max-w-[1440px] px-gutter">
-        <div className="grid lg:grid-cols-12 items-center gap-10 lg:gap-12 min-h-[70svh] lg:min-h-[78svh] py-10 lg:py-8">
+        <div className="grid lg:grid-cols-12 items-center gap-6 sm:gap-10 lg:gap-12 sm:min-h-[70svh] lg:min-h-[78svh] pt-5 pb-9 sm:py-10 lg:py-8">
           <div className="order-2 lg:order-1 lg:col-span-5 text-center lg:text-left">
-            <p className="eyebrow text-gold-950" data-reveal>Revelle Beauty</p>
-            <h1 className="display text-display-1 text-ink mt-6" data-reveal style={revealDelay(1, 90)}>
+            <p className="eyebrow text-gold-950 hidden sm:block" data-reveal>Revelle Beauty</p>
+            <h1
+              className="display text-[2.25rem] max-sm:leading-[1.02] sm:text-display-1 text-ink sm:mt-6"
+              data-reveal
+              style={revealDelay(1, 90)}
+            >
               Be you.
               <br />
               Be bold.
               <br />
               Be Revelle.
             </h1>
-            <GoldRule ornament className="w-44 mt-8 mx-auto lg:mx-0" data-reveal="draw" style={revealDelay(3, 90)} />
-            <p className="mt-8 text-body-lg text-ink-soft max-w-md mx-auto lg:mx-0" data-reveal style={revealDelay(4, 90)}>
+            <GoldRule ornament className="w-32 sm:w-44 mt-4 sm:mt-8 mx-auto lg:mx-0" data-reveal="draw" style={revealDelay(3, 90)} />
+            <p className="hidden sm:block mt-8 text-body-lg text-ink-soft max-w-md mx-auto lg:mx-0" data-reveal style={revealDelay(4, 90)}>
               Lip color designed around one idea: the shade is the star, and
               everything else steps back.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4 justify-center lg:justify-start" data-reveal style={revealDelay(5, 90)}>
-              <Link to="/shop">
-                <Button variant="metal" size="lg">Shop the shades</Button>
+            <div className="mt-5 sm:mt-10 flex flex-wrap gap-4 justify-center lg:justify-start" data-reveal style={revealDelay(5, 90)}>
+              <Link to="/shop" className="w-full max-w-[340px] sm:w-auto sm:max-w-none">
+                <Button variant="metal" size="lg" className="w-full">Shop the shades</Button>
               </Link>
-              <Link to="/shop/skincare">
+              <Link to="/shop/skincare" className="hidden sm:block">
                 <Button variant="outline" size="lg">Discover skincare</Button>
+              </Link>
+              {/* Two big buttons don't fit side by side on a phone; stacked,
+                  the second pushed the shop below the fold. */}
+              <Link to="/shop/skincare" className="sm:hidden -mt-1 text-sm text-ink link-ink">
+                or discover skincare
               </Link>
             </div>
             <div className="mt-10 hidden lg:flex items-center gap-8 text-xs text-ink-muted" data-reveal style={revealDelay(6, 90)}>
@@ -109,16 +121,16 @@ export function HomePage() {
 
           <div className="order-1 lg:order-2 lg:col-span-7">
             <div
-              className="grid grid-cols-[1fr_1.2fr] gap-4 lg:gap-5 items-center max-w-[420px] sm:max-w-[560px] lg:max-w-[680px] mx-auto lg:ml-auto lg:mr-0"
+              className="grid grid-cols-2 sm:grid-cols-[1fr_1.2fr] gap-3 sm:gap-4 lg:gap-5 items-center max-w-[340px] sm:max-w-[560px] lg:max-w-[680px] mx-auto lg:ml-auto lg:mr-0"
               data-reveal="still"
               style={revealDelay(2, 90)}
             >
               <img
                 src={campaignImage}
                 alt="The Revelle campaign"
-                className="w-full aspect-[3/4] object-cover rounded-xs metal-ring shadow-[var(--shadow-lift)] lg:translate-y-8"
+                className="w-full aspect-[4/5] sm:aspect-[3/4] object-cover rounded-xs metal-ring shadow-[var(--shadow-lift)] lg:translate-y-8"
               />
-              <div className="aspect-[3/4] rounded-xs metal-ring overflow-hidden shadow-[var(--shadow-lift)] lg:-translate-y-4">
+              <div className="aspect-[4/5] sm:aspect-[3/4] rounded-xs metal-ring overflow-hidden shadow-[var(--shadow-lift)] lg:-translate-y-4">
                 <BrandVideo src="/media/revelle-hero.mp4" poster="/media/revelle-hero-poster.jpg" className="h-full w-full" />
               </div>
             </div>
