@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+import type { ProductSummaryDTO } from '@contracts/index';
 import { useProducts, useSettings } from '@/features/catalog/useCatalog';
 import { ProductGrid } from '@/components/product/ProductGrid';
-import { ProductCard } from '@/components/product/ProductCard';
 import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
 import { GoldRule } from '@/components/brand/GoldRule';
 import { Sparkle } from '@/components/brand/Sparkle';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { BrandVideo } from '@/components/media/BrandVideo';
 import { revealDelay, useReveal } from '@/lib/useReveal';
 import { formatCents } from '@/lib/money';
+import { cn } from '@/lib/cn';
 import campaignImage from '@/assets/revelle-campaign.jpg';
 import logoImage from '@/assets/logo.jpg';
 
@@ -46,95 +47,88 @@ const VALUE_PROPS = [
   { title: 'Shade-first design', body: 'Every product built around the color it carries.' },
 ];
 
+type ShelfTab = 'bestsellers' | 'new' | 'lips';
+
+const SHELF_TABS: { id: ShelfTab; label: string }[] = [
+  { id: 'bestsellers', label: 'Bestsellers' },
+  { id: 'new', label: 'New in' },
+  { id: 'lips', label: 'All lips' },
+];
+
+/**
+ * Shelves lead with what can be seen: products without a photograph yet (the
+ * skincare line, today) would open "New in" on four blank tiles. If nothing in
+ * a list has a photograph, show the list rather than an empty shelf.
+ */
+const photographed = (products: ProductSummaryDTO[] | undefined) => {
+  const list = products ?? [];
+  const shown = list.filter((p) => p.primaryImage);
+  return shown.length > 0 ? shown : list;
+};
+
 export function HomePage() {
-  const { data: featured, isPending } = useProducts({ featured: true, limit: 8 });
-  const { data: all } = useProducts({ limit: 60 });
-  const { data: newest } = useProducts({ sort: 'newest', limit: 8 });
+  const { data: featured, isPending: featuredPending } = useProducts({ featured: true, limit: 8 });
+  const { data: lips, isPending: lipsPending } = useProducts({ category: 'lips', limit: 24 });
+  const { data: newest, isPending: newestPending } = useProducts({ sort: 'newest', limit: 16 });
   const { data: settings } = useSettings();
+  const [tab, setTab] = useState<ShelfTab>('bestsellers');
 
   // One observer for the whole page; it re-scans as each query lands.
   const pageRef = useReveal<HTMLDivElement>([
     featured?.products.length,
-    all?.products.length,
+    lips?.products.length,
     newest?.products.length,
   ]);
 
-  // The campaign CTA quotes a real price rather than a baked-in one — a
+  // The campaign CTA quotes a real price rather than a baked-in one: a
   // hardcoded "$22" outlived two price changes before this.
-  const campaignProduct = (all?.products ?? []).find((p) => p.slug === 'high-shine-lip-oil');
+  const campaignProduct = (lips?.products ?? []).find((p) => p.slug === 'high-shine-lip-oil');
 
-  const allShades = (all?.products ?? [])
+  const allShades = (lips?.products ?? [])
     .flatMap((p) => p.swatches.map((s) => ({ ...s, productSlug: p.slug })))
     .filter((s) => s.hexColor)
     .slice(0, 14);
 
+  const shelf = {
+    bestsellers: { products: photographed(featured?.products), loading: featuredPending },
+    new: { products: photographed(newest?.products).slice(0, 8), loading: newestPending },
+    lips: { products: photographed(lips?.products), loading: lipsPending },
+  }[tab];
+
   return (
     <div ref={pageRef}>
-      {/* ============ 1. HERO — split editorial ============
-          Desktop: text column left, a composed two-card media cluster right
-          (image + video side by side, offset for rhythm — no floating
-          overlaps). One primary path: the shop.
-          Phone: the whole introduction fits the first screen with the shop
-          button in it — shorter photo pair, a smaller slogan, no eyebrow
-          (the header already says Revelle) and no paragraph. */}
-      <section className="mx-auto max-w-[1440px] px-gutter">
-        <div className="grid lg:grid-cols-12 items-center gap-6 sm:gap-10 lg:gap-12 sm:min-h-[70svh] lg:min-h-[78svh] pt-5 pb-9 sm:py-10 lg:py-8">
-          <div className="order-2 lg:order-1 lg:col-span-5 text-center lg:text-left">
-            <p className="eyebrow text-gold-950 hidden sm:block" data-reveal>Revelle Beauty</p>
-            <h1
-              className="display text-[2.25rem] max-sm:leading-[1.02] sm:text-display-1 text-ink sm:mt-6"
-              data-reveal
-              style={revealDelay(1, 90)}
-            >
-              Be you.
-              <br />
-              Be bold.
-              <br />
-              Be Revelle.
-            </h1>
-            <GoldRule ornament className="w-32 sm:w-44 mt-4 sm:mt-8 mx-auto lg:mx-0" data-reveal="draw" style={revealDelay(3, 90)} />
-            <p className="hidden sm:block mt-8 text-body-lg text-ink-soft max-w-md mx-auto lg:mx-0" data-reveal style={revealDelay(4, 90)}>
-              Lip color designed around one idea: the shade is the star, and
-              everything else steps back.
-            </p>
-            <div className="mt-5 sm:mt-10 flex flex-wrap gap-4 justify-center lg:justify-start" data-reveal style={revealDelay(5, 90)}>
-              <Link to="/shop" className="w-full max-w-[340px] sm:w-auto sm:max-w-none">
-                <Button variant="metal" size="lg" className="w-full">Shop the shades</Button>
-              </Link>
-              <Link to="/shop/skincare" className="hidden sm:block">
-                <Button variant="outline" size="lg">Discover skincare</Button>
-              </Link>
-              {/* Two big buttons don't fit side by side on a phone; stacked,
-                  the second pushed the shop below the fold. */}
-              <Link to="/shop/skincare" className="sm:hidden -mt-1 text-sm text-ink link-ink">
-                or discover skincare
-              </Link>
-            </div>
-            <div className="mt-10 hidden lg:flex items-center gap-8 text-xs text-ink-muted" data-reveal style={revealDelay(6, 90)}>
-              <span>40+ shades</span>
-              <span className="w-px h-4 bg-hairline" aria-hidden="true" />
-              <span>Clean formulas</span>
-              <span className="w-px h-4 bg-hairline" aria-hidden="true" />
-              <span>Cruelty free</span>
-            </div>
+      {/* ============ 1. THE SHELF: products first ============
+          A shopper lands on products, not on a poster: a one-line brand
+          heading, three shelves to flip between, and the grid inside the
+          first screen on phone and desktop alike. The brand story that used
+          to open the page now closes it (section 8), for the people who
+          have scrolled far enough to want it. */}
+      <section className="mx-auto max-w-[1440px] px-gutter pt-6 sm:pt-10 lg:pt-12 pb-12 sm:pb-16">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6">
+          <div>
+            <p className="eyebrow text-gold-950">Be you. Be bold. Be Revelle.</p>
+            <h1 className="display text-h1 text-ink mt-2 sm:mt-3">Find your shade</h1>
           </div>
+          <div className="flex items-center justify-between gap-6">
+            <ShelfTabs value={tab} onChange={setTab} />
+            <Link to="/shop" className="text-sm text-ink link-ink shrink-0 hidden sm:inline">
+              Shop all
+            </Link>
+          </div>
+        </div>
 
-          <div className="order-1 lg:order-2 lg:col-span-7">
-            <div
-              className="grid grid-cols-2 sm:grid-cols-[1fr_1.2fr] gap-3 sm:gap-4 lg:gap-5 items-center max-w-[340px] sm:max-w-[560px] lg:max-w-[680px] mx-auto lg:ml-auto lg:mr-0"
-              data-reveal="still"
-              style={revealDelay(2, 90)}
-            >
-              <img
-                src={campaignImage}
-                alt="The Revelle campaign"
-                className="w-full aspect-[4/5] sm:aspect-[3/4] object-cover rounded-xs metal-ring shadow-[var(--shadow-lift)] lg:translate-y-8"
-              />
-              <div className="aspect-[4/5] sm:aspect-[3/4] rounded-xs metal-ring overflow-hidden shadow-[var(--shadow-lift)] lg:-translate-y-4">
-                <BrandVideo src="/media/revelle-hero.mp4" poster="/media/revelle-hero-poster.jpg" className="h-full w-full" />
-              </div>
-            </div>
-          </div>
+        <div id="home-shelf" role="tabpanel" aria-labelledby={`shelf-tab-${tab}`} className="mt-5 sm:mt-8">
+          {/* Keyed so a new shelf deals its cards in rather than swapping under the eye. */}
+          <ProductGrid key={tab} products={shelf.products} loading={shelf.loading} priorityCount={4} />
+        </div>
+
+        <div className="mt-8 sm:mt-10 flex flex-col items-center gap-3">
+          <Link to="/shop" className="w-full max-w-[340px] sm:w-auto">
+            <Button variant="metal" size="lg" className="w-full">Shop all products</Button>
+          </Link>
+          <Link to="/shades" className="text-sm text-ink link-ink">
+            or browse every shade
+          </Link>
         </div>
       </section>
 
@@ -263,7 +257,7 @@ export function HomePage() {
         </section>
       )}
 
-      {/* ============ 4b. EDITORIAL — new photography ============ */}
+      {/* ============ 5. EDITORIAL — new photography ============ */}
       <section className="mt-section">
         <div className="mx-auto max-w-[1440px] px-gutter">
           <div className="text-center mb-10">
@@ -325,7 +319,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ============ 5. CAMPAIGN BANNER — the Revelle banner ============ */}
+      {/* ============ 6. CAMPAIGN BANNER — the Revelle banner ============ */}
       <section className="mt-section bg-porcelain border-y border-hairline">
         <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-20 grid lg:grid-cols-2 items-center gap-12">
           <div className="relative mx-auto w-full max-w-[520px]" data-reveal="still">
@@ -376,48 +370,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ============ 6. FEATURED COLLECTION ============ */}
-      <section className="mt-section">
-        <div className="mx-auto max-w-[1440px] px-gutter">
-          <div className="flex items-end justify-between mb-10">
-            <div data-reveal>
-              <p className="eyebrow text-gold-950">Bestsellers</p>
-              <h2 className="display text-h1 text-ink mt-4">The collection</h2>
-            </div>
-            <Link to="/shop" className="text-sm text-ink link-ink hidden sm:inline">
-              View all
-            </Link>
-          </div>
-          <ProductGrid products={featured?.products ?? []} loading={isPending} />
-        </div>
-      </section>
-
-      {/* ============ 7. NEW ARRIVALS rail (horizontal scroll) ============ */}
-      {(newest?.products.length ?? 0) > 0 && (
-        <section className="mt-section">
-          <div className="mx-auto max-w-[1440px] px-gutter">
-            <div className="flex items-end justify-between mb-8">
-              <div data-reveal>
-                <p className="eyebrow text-gold-950">Just landed</p>
-                <h2 className="display text-h1 text-ink mt-4">New arrivals</h2>
-              </div>
-            </div>
-          </div>
-          {/* The rail arrives whole: staggering cards that sit off to the right
-              would leave them invisible until someone scrolls sideways. */}
-          <div className="overflow-x-auto pb-4" data-reveal>
-            <div className="flex gap-5 px-gutter mx-auto max-w-[1440px] w-max min-w-full">
-              {newest!.products.map((p) => (
-                <div key={p.id} className="w-[240px] sm:w-[280px] shrink-0">
-                  <ProductCard product={p} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ============ 8. TESTIMONIALS ============ */}
+      {/* ============ 7. TESTIMONIALS ============ */}
       <section className="mt-section bg-ivory-deep/60 border-y border-hairline">
         <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-20">
           <div className="text-center mb-12" data-reveal>
@@ -450,31 +403,64 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ============ 9. STORY VIDEO band ============ */}
+      {/* ============ 8. THE BRAND: the old cover, now the closing chapter ============
+          The campaign photograph and film with the slogan, for the shopper
+          who has browsed and wants to know who is behind it. It ends on the
+          shop again, so the story leads back to the products. */}
       <section className="mt-section">
-        <div className="mx-auto max-w-[1440px] px-gutter grid lg:grid-cols-2 items-center gap-12">
-          <div
-            className="mx-auto max-w-[360px] w-full aspect-[9/16] rounded-xs metal-ring overflow-hidden order-1 lg:order-2"
-            data-reveal="still"
-          >
-            <BrandVideo src="/media/revelle-story.mp4" poster="/media/revelle-story-poster.jpg" preload="none" className="h-full w-full" />
+        <div className="mx-auto max-w-[1440px] px-gutter grid lg:grid-cols-12 items-center gap-8 lg:gap-12">
+          <div className="lg:col-span-7">
+            <div
+              className="grid grid-cols-2 sm:grid-cols-[1fr_1.2fr] gap-3 sm:gap-4 lg:gap-5 items-center max-w-[340px] sm:max-w-[560px] lg:max-w-[680px] mx-auto lg:ml-0"
+              data-reveal="still"
+            >
+              <img
+                src={campaignImage}
+                alt="The Revelle campaign"
+                loading="lazy"
+                decoding="async"
+                className="w-full aspect-[4/5] sm:aspect-[3/4] object-cover rounded-xs metal-ring shadow-[var(--shadow-lift)] lg:translate-y-8"
+              />
+              <div className="aspect-[4/5] sm:aspect-[3/4] rounded-xs metal-ring overflow-hidden shadow-[var(--shadow-lift)] lg:-translate-y-4">
+                <BrandVideo src="/media/revelle-hero.mp4" poster="/media/revelle-hero-poster.jpg" preload="none" className="h-full w-full" />
+              </div>
+            </div>
           </div>
-          <div className="text-center lg:text-left order-2 lg:order-1" data-reveal style={revealDelay(1, 120)}>
-            <p className="eyebrow text-gold-950">Our philosophy</p>
-            <h2 className="display text-h1 text-ink mt-4">Color belongs to you</h2>
-            <p className="mt-6 text-body-lg text-ink-soft max-w-lg mx-auto lg:mx-0">
-              Every Revelle formula is built to let your shade speak — nourishing
-              oils, weightless mattes, and glass-like glosses in colors chosen to
-              flatter, never to shout.
+          <div className="lg:col-span-5 text-center lg:text-left">
+            <p className="eyebrow text-gold-950" data-reveal>Our philosophy</p>
+            <h2 className="display text-display-2 text-ink mt-4" data-reveal style={revealDelay(1, 90)}>
+              Be you.
+              <br />
+              Be bold.
+              <br />
+              Be Revelle.
+            </h2>
+            <GoldRule ornament className="w-36 sm:w-44 mt-6 mx-auto lg:mx-0" data-reveal="draw" style={revealDelay(2, 90)} />
+            <p className="mt-6 text-body-lg text-ink-soft max-w-md mx-auto lg:mx-0" data-reveal style={revealDelay(3, 90)}>
+              Lip color designed around one idea: the shade is the star, and
+              everything else steps back. Nourishing oils, weightless mattes and
+              glass-like glosses in colors chosen to flatter every tone.
             </p>
-            <Link to="/about" className="inline-block mt-8 text-sm text-ink link-ink">
-              Read our story
-            </Link>
+            <div className="mt-6 flex items-center justify-center lg:justify-start gap-6 text-xs text-ink-muted" data-reveal style={revealDelay(4, 90)}>
+              <span>40+ shades</span>
+              <span className="w-px h-4 bg-hairline" aria-hidden="true" />
+              <span>Clean formulas</span>
+              <span className="w-px h-4 bg-hairline" aria-hidden="true" />
+              <span>Cruelty free</span>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start" data-reveal style={revealDelay(5, 90)}>
+              <Link to="/shop">
+                <Button variant="metal" size="lg">Shop the shades</Button>
+              </Link>
+              <Link to="/about">
+                <Button variant="outline" size="lg">Our story</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ============ 10. VALUE PROPS ============ */}
+      {/* ============ 9. VALUE PROPS ============ */}
       <section className="mt-section">
         <div className="mx-auto max-w-[1440px] px-gutter">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
@@ -494,8 +480,49 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ============ 11. NEWSLETTER ============ */}
+      {/* ============ 10. NEWSLETTER ============ */}
       <NewsletterBand announcement={settings?.announcement ?? null} />
+    </div>
+  );
+}
+
+/**
+ * The shelf switcher. Real tabs: arrow keys move between them and the
+ * selected one is the only one in the tab order.
+ */
+function ShelfTabs({ value, onChange }: { value: ShelfTab; onChange: (tab: ShelfTab) => void }) {
+  const move = (from: number, step: number) => {
+    const next = SHELF_TABS[(from + step + SHELF_TABS.length) % SHELF_TABS.length]!;
+    onChange(next.id);
+    document.getElementById(`shelf-tab-${next.id}`)?.focus();
+  };
+  return (
+    <div role="tablist" aria-label="Shop by" className="flex gap-5 sm:gap-7">
+      {SHELF_TABS.map((t, i) => {
+        const selected = t.id === value;
+        return (
+          <button
+            key={t.id}
+            id={`shelf-tab-${t.id}`}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            aria-controls="home-shelf"
+            tabIndex={selected ? 0 : -1}
+            onClick={() => onChange(t.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowRight') move(i, 1);
+              else if (e.key === 'ArrowLeft') move(i, -1);
+            }}
+            className={cn(
+              'eyebrow py-2 border-b transition-colors duration-300 cursor-pointer',
+              selected ? 'text-ink border-gold-500' : 'text-ink-muted border-transparent hover:text-ink',
+            )}
+          >
+            {t.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

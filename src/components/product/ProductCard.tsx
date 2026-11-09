@@ -28,7 +28,14 @@ const FRAME_MS = 620;
  * bead switches to that shade's. Both are mouse enhancements — the card still
  * goes to the product page, where every shade is pickable with a keyboard.
  */
-export function ProductCard({ product }: { product: ProductSummaryDTO }) {
+export function ProductCard({
+  product,
+  priority = false,
+}: {
+  product: ProductSummaryDTO;
+  /** Above the fold on arrival: fetch the photo now rather than lazily. */
+  priority?: boolean;
+}) {
   // The reel last pointed at stays mounted after the pointer leaves so its
   // layers can fade back out; `active` is what the card is actually showing.
   const [shade, setShade] = useState<SwatchDTO | null>(null);
@@ -87,7 +94,8 @@ export function ProductCard({ product }: { product: ProductSummaryDTO }) {
             alt={product.primaryImage.altText ?? product.name}
             width={product.primaryImage.width ?? undefined}
             height={product.primaryImage.height ?? undefined}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : undefined}
             decoding="async"
             className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.03]"
             style={{ transitionTimingFunction: 'var(--ease-couture)' }}

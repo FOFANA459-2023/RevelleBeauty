@@ -6,9 +6,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('home', () => {
-  test('renders the hero, nav, and featured products', async ({ page }) => {
+  test('opens on products, with the nav and the shipping promise', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Be Revelle');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Find your shade');
+    // Products are the first thing in view, not below a cover.
+    await expect(page.getByRole('tabpanel').getByText('High Shine Lip Oil').first()).toBeInViewport();
     // On a phone the primary nav lives behind the menu button; reach it the way
     // a shopper would rather than asserting the desktop bar.
     const menu = page.getByRole('button', { name: 'Open menu' });
@@ -16,6 +18,15 @@ test.describe('home', () => {
     await expect(page.getByRole('navigation', { name: 'Primary' }).first()).toBeVisible();
     await expect(page.getByText('High Shine Lip Oil').first()).toBeVisible();
     await expect(page.getByText('COMPLIMENTARY SHIPPING ON ORDERS OVER $50').first()).toBeVisible();
+  });
+
+  test('the shelf tabs switch between bestsellers, new and all lips', async ({ page }) => {
+    await page.goto('/');
+    const panel = page.getByRole('tabpanel');
+    await expect(page.getByRole('tab', { name: 'Bestsellers' })).toHaveAttribute('aria-selected', 'true');
+    await page.getByRole('tab', { name: 'All lips' }).click();
+    await expect(page.getByRole('tab', { name: 'All lips' })).toHaveAttribute('aria-selected', 'true');
+    await expect(panel.getByRole('link').first()).toBeVisible();
   });
 });
 

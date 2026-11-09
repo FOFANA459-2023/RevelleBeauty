@@ -8,10 +8,13 @@ export function ProductGrid({
   products,
   loading = false,
   emptyMessage = 'Nothing here yet.',
+  priorityCount = 0,
 }: {
   products: ProductSummaryDTO[];
   loading?: boolean;
   emptyMessage?: string;
+  /** How many leading cards are on the first screen and load eagerly. */
+  priorityCount?: number;
 }) {
   // Cards deal themselves in, left to right, as the grid is scrolled to.
   const gridRef = useReveal<HTMLDivElement>([products.length, loading]);
@@ -43,7 +46,7 @@ export function ProductGrid({
     <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
       {products.map((p, i) => (
         <div key={p.id} data-reveal style={revealDelay(i)}>
-          <ProductCard product={p} />
+          <ProductCard product={p} priority={i < priorityCount} />
         </div>
       ))}
     </div>
