@@ -45,6 +45,9 @@ const AdminOrderListPage = lazy(() =>
 const AdminOrderDetailPage = lazy(() =>
   import('@/pages/admin/AdminOrderPages').then((m) => ({ default: m.AdminOrderDetailPage })),
 );
+const AdminReviewsPage = lazy(() =>
+  import('@/pages/admin/AdminReviewsPage').then((m) => ({ default: m.AdminReviewsPage })),
+);
 const StyleguidePage = lazy(() =>
   import('@/pages/dev/StyleguidePage').then((m) => ({ default: m.StyleguidePage })),
 );
@@ -97,6 +100,7 @@ const router = createBrowserRouter([
       { path: 'products/:id', element: <AdminProductEditorPage /> },
       { path: 'orders', element: <AdminOrderListPage /> },
       { path: 'orders/:id', element: <AdminOrderDetailPage /> },
+      { path: 'reviews', element: <AdminReviewsPage /> },
     ],
   },
 ]);

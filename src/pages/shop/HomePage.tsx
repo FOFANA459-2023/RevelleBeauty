@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import type { ProductSummaryDTO } from '@contracts/index';
 import { useProducts, useSettings } from '@/features/catalog/useCatalog';
+import { useRecentReviews } from '@/features/reviews/useReviews';
+import { Stars } from '@/components/review/Stars';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
 import { GoldRule } from '@/components/brand/GoldRule';
@@ -20,24 +22,6 @@ const MARQUEE_ITEMS = [
   'Clean formulas',
   'Cruelty free',
   'The shade is the star',
-];
-
-const TESTIMONIALS = [
-  {
-    quote: 'The only gloss I have ever repurchased three times. Fuchsia Kiss is my whole personality now.',
-    name: 'Amara J.',
-    product: 'High Shine Lip Oil',
-  },
-  {
-    quote: 'Finally a matte that does not turn to dust by 2pm. The color payoff is unreal.',
-    name: 'Dani R.',
-    product: 'Creamy Matte Lipstick',
-  },
-  {
-    quote: 'I bought one shade, came back for four. The swatches online match real life exactly.',
-    name: 'Leila M.',
-    product: 'Lip Lustre Lip Gloss',
-  },
 ];
 
 const VALUE_PROPS = [
@@ -71,6 +55,7 @@ export function HomePage() {
   const { data: lips, isPending: lipsPending } = useProducts({ category: 'lips', limit: 24 });
   const { data: newest, isPending: newestPending } = useProducts({ sort: 'newest', limit: 16 });
   const { data: settings } = useSettings();
+  const { data: recentReviews } = useRecentReviews(3);
   const [tab, setTab] = useState<ShelfTab>('bestsellers');
 
   // One observer for the whole page; it re-scans as each query lands.
@@ -78,16 +63,23 @@ export function HomePage() {
     featured?.products.length,
     lips?.products.length,
     newest?.products.length,
+    recentReviews?.length,
   ]);
 
   // The campaign CTA quotes a real price rather than a baked-in one: a
   // hardcoded "$22" outlived two price changes before this.
   const campaignProduct = (lips?.products ?? []).find((p) => p.slug === 'high-shine-lip-oil');
 
-  const allShades = (lips?.products ?? [])
+  const lipShades = (lips?.products ?? [])
     .flatMap((p) => p.swatches.map((s) => ({ ...s, productSlug: p.slug })))
-    .filter((s) => s.hexColor)
-    .slice(0, 14);
+    .filter((s) => s.hexColor);
+  const allShades = lipShades.slice(0, 14);
+  // Counts quoted on the page come from the catalog, so they cannot go stale
+  // the way "9 products · 40+ shades" and "Eight shades" did.
+  const shadeCount = lipShades.length;
+  const lipsLine = lips
+    ? `${lips.total} products · ${shadeCount} shades`
+    : 'Lip color';
 
   const shelf = {
     bestsellers: { products: photographed(featured?.products), loading: featuredPending },
@@ -168,7 +160,7 @@ export function HomePage() {
               className="absolute bottom-0 left-0 p-7 on-ink transition-transform duration-500 motion-safe:group-hover:-translate-y-1"
               style={{ transitionTimingFunction: 'var(--ease-couture)' }}
             >
-              <span className="eyebrow text-gold-300 block">9 products · 40+ shades</span>
+              <span className="eyebrow text-gold-300 block">{lipsLine}</span>
               <span className="display text-h1 text-ivory block mt-2">Lips</span>
               <span className="eyebrow text-ivory/90 mt-3 inline-flex items-center gap-2 border-b border-gold-300 pb-1">
                 Shop now
@@ -352,7 +344,13 @@ export function HomePage() {
               feel, and a shade range made to flatter every tone.
             </p>
             <ul className="mt-8 space-y-3 text-sm text-ink-soft max-w-md mx-auto lg:mx-0 text-left">
-              {['Mirror shine without the stick', 'Botanical oils condition over time', 'Eight shades, sheer to statement'].map((t, i) => (
+              {[
+                'Mirror shine without the stick',
+                'Botanical oils condition over time',
+                campaignProduct
+                  ? `${campaignProduct.swatches.length} shades, sheer to statement`
+                  : 'Shades from sheer to statement',
+              ].map((t, i) => (
                 <li key={t} className="flex items-start gap-3" data-reveal style={revealDelay(i + 3, 90)}>
                   <Sparkle size={12} className="text-gold-500 mt-1 shrink-0" />
                   {t}
@@ -370,38 +368,49 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ============ 7. TESTIMONIALS ============ */}
-      <section className="mt-section bg-ivory-deep/60 border-y border-hairline">
-        <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-20">
-          <div className="text-center mb-12" data-reveal>
-            <p className="eyebrow text-gold-950">Loved loudly</p>
-            <h2 className="display text-h1 text-ink mt-4">From the Revelle community</h2>
+      {/* ============ 7. REVIEWS: real ones only ============
+          Written by signed-in customers on product pages. Until the first
+          four- or five-star review exists, the section is simply absent:
+          an empty "community" reads worse than none. */}
+      {recentReviews && recentReviews.length > 0 && (
+        <section className="mt-section bg-ivory-deep/60 border-y border-hairline">
+          <div className="mx-auto max-w-[1440px] px-gutter py-16 lg:py-20">
+            <div className="text-center mb-12" data-reveal>
+              <p className="eyebrow text-gold-950">In their words</p>
+              <h2 className="display text-h1 text-ink mt-4">From the Revelle community</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {recentReviews.map((r, i) => (
+                <figure
+                  key={r.id}
+                  className="bg-porcelain border border-hairline rounded-sm p-7 flex flex-col"
+                  data-reveal
+                  style={revealDelay(i, 110)}
+                >
+                  <Stars value={r.rating} size={13} label={`${r.rating} out of 5 stars`} />
+                  {r.title && <p className="mt-4 font-display text-lg text-ink">{r.title}</p>}
+                  <blockquote className="mt-3 font-display text-lg leading-relaxed text-ink flex-1 line-clamp-6 break-words">
+                    “{r.body}”
+                  </blockquote>
+                  <figcaption className="mt-6">
+                    <p className="eyebrow text-ink">
+                      {r.author}
+                      {r.verifiedPurchase && (
+                        <span className="normal-case tracking-normal font-normal text-gold-950"> · Verified purchase</span>
+                      )}
+                    </p>
+                    {r.product && (
+                      <Link to={`/product/${r.product.slug}#reviews`} className="text-xs text-ink-muted mt-1 inline-block link-ink">
+                        on {r.product.name}
+                      </Link>
+                    )}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {TESTIMONIALS.map((t, i) => (
-              <figure
-                key={t.name}
-                className="bg-porcelain border border-hairline rounded-sm p-7 flex flex-col"
-                data-reveal
-                style={revealDelay(i, 110)}
-              >
-                <div className="flex gap-1 text-gold-700" aria-label="5 out of 5 stars">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Sparkle key={i} size={11} />
-                  ))}
-                </div>
-                <blockquote className="mt-5 font-display text-lg leading-relaxed text-ink flex-1">
-                  “{t.quote}”
-                </blockquote>
-                <figcaption className="mt-6">
-                  <p className="eyebrow text-ink">{t.name}</p>
-                  <p className="text-xs text-ink-muted mt-1">on {t.product}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ============ 8. THE BRAND: the old cover, now the closing chapter ============
           The campaign photograph and film with the slogan, for the shopper
@@ -442,8 +451,8 @@ export function HomePage() {
               glass-like glosses in colors chosen to flatter every tone.
             </p>
             <div className="mt-6 flex items-center justify-center lg:justify-start gap-6 text-xs text-ink-muted" data-reveal style={revealDelay(4, 90)}>
-              <span>40+ shades</span>
-              <span className="w-px h-4 bg-hairline" aria-hidden="true" />
+              {shadeCount > 0 && <span>{shadeCount} shades</span>}
+              {shadeCount > 0 && <span className="w-px h-4 bg-hairline" aria-hidden="true" />}
               <span>Clean formulas</span>
               <span className="w-px h-4 bg-hairline" aria-hidden="true" />
               <span>Cruelty free</span>

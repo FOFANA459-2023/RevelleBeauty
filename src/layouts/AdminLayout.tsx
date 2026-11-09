@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 const NAV = [
   { to: '/admin/products', label: 'Products' },
   { to: '/admin/orders', label: 'Orders' },
+  { to: '/admin/reviews', label: 'Reviews' },
 ];
 
 /**

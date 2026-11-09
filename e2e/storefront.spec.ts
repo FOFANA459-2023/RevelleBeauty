@@ -30,6 +30,60 @@ test.describe('home', () => {
   });
 });
 
+test.describe('reviews', () => {
+  test('the homepage shows no testimonials until real reviews exist', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'From the Revelle community' })).toHaveCount(0);
+  });
+
+  test('real reviews appear on the homepage with their product', async ({ page }) => {
+    await page.route('**/api/reviews/recent*', (r) =>
+      r.fulfill({
+        json: {
+          reviews: [{
+            id: 'r1', rating: 5, title: 'Glass shine', body: 'Weightless and it lasts.',
+            author: 'Amara J.', verifiedPurchase: true, createdAt: '2026-11-01T00:00:00Z',
+            product: { slug: 'high-shine-lip-oil', name: 'High Shine Lip Oil' },
+          }],
+        },
+      }),
+    );
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'From the Revelle community' })).toBeVisible();
+    await expect(page.getByText('Weightless and it lasts.')).toBeVisible();
+    await expect(page.getByText('Verified purchase')).toBeVisible();
+  });
+
+  test('a product without reviews says so and asks signed-out shoppers to sign in', async ({ page }) => {
+    await page.goto('/product/high-shine-lip-oil');
+    const section = page.locator('#reviews');
+    await expect(section.getByText('No reviews yet')).toBeVisible();
+    await expect(section.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', /\/login\?next=/);
+  });
+
+  test('a product with reviews shows the average, the breakdown and the reviews', async ({ page }) => {
+    await page.route('**/api/products/*/reviews?*', (r) =>
+      r.fulfill({
+        json: {
+          summary: { average: 4.5, count: 2, distribution: [0, 0, 0, 1, 1] },
+          total: 2,
+          reviews: [
+            { id: 'r1', rating: 5, title: null, body: 'Love the shine on this one.', author: 'Amara J.', verifiedPurchase: false, createdAt: '2026-11-01T00:00:00Z' },
+            { id: 'r2', rating: 4, title: 'Nice', body: 'Lovely, a little sticky.', author: 'Dani R.', verifiedPurchase: true, createdAt: '2026-10-20T00:00:00Z' },
+          ],
+        },
+      }),
+    );
+    await page.goto('/product/high-shine-lip-oil');
+    const section = page.locator('#reviews');
+    await expect(section.getByText('4.5', { exact: true })).toBeVisible();
+    await expect(section.getByText('Love the shine on this one.')).toBeVisible();
+    await expect(section.getByText('Dani R.')).toBeVisible();
+    await expect(section.getByRole('list', { name: 'Ratings breakdown' })).toBeVisible();
+  });
+});
+
 test.describe('shop', () => {
   test('search filter narrows the grid instantly', async ({ page }) => {
     await page.goto('/shop');

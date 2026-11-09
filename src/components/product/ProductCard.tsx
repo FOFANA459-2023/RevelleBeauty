@@ -6,6 +6,7 @@ import { ShadeDots } from '@/components/shade/ShadeDots';
 import { formatPriceRange } from '@/lib/money';
 import { shadeLabel } from '@/lib/shade';
 import { cn } from '@/lib/cn';
+import { RatingLine } from '@/components/review/Stars';
 
 /**
  * How long one photograph holds before the card turns to the next. Quick
@@ -165,6 +166,8 @@ export function ProductCard({
             product.tagline
           )}
         </p>
+        {/* Optional chaining: the Worker can deploy ahead of an API without ratings. */}
+        <RatingLine rating={product.rating ?? null} compact size={12} className="mt-2" />
         <div className="mt-3 flex items-center justify-between gap-3">
           <ShadeDots swatches={product.swatches} onPreview={previewShade} />
           <span className="text-sm text-ink-soft tabular">

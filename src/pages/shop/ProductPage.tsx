@@ -14,6 +14,8 @@ import { Sparkle } from '@/components/brand/Sparkle';
 import { formatCents } from '@/lib/money';
 import { shadeLabel } from '@/lib/shade';
 import { revealDelay, useReveal } from '@/lib/useReveal';
+import { ProductReviews } from '@/components/review/ProductReviews';
+import { RatingLine } from '@/components/review/Stars';
 
 export function ProductPage() {
   const { productSlug } = useParams();
@@ -160,6 +162,11 @@ export function ProductPage() {
           <p className="mt-3 text-body-lg tabular text-ink-soft" data-reveal style={revealDelay(1, 80)}>
             {formatCents(price)}
           </p>
+          {product.rating ? (
+            <a href="#reviews" className="mt-2 inline-block hover:opacity-80 transition-opacity">
+              <RatingLine rating={product.rating} />
+            </a>
+          ) : null}
           {product.tagline && (
             <p className="mt-4 text-body text-ink-soft" data-reveal style={revealDelay(2, 80)}>
               {product.tagline}
@@ -224,6 +231,9 @@ export function ProductPage() {
           </div>
         </div>
       </div>
+
+      {/* ---------- reviews: written by customers, never by us ---------- */}
+      <ProductReviews slug={product.slug} productName={product.name} />
 
       {/* ---------- recommendations: content-scored on the server ---------- */}
       {related && related.length > 0 && (

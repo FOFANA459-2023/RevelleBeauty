@@ -29,6 +29,11 @@ import type {
   ProfilePatch,
   RegisterBody,
   ShippingInput,
+  AdminReviewDTO,
+  MyReviewDTO,
+  ProductReviewsResponse,
+  ReviewDTO,
+  ReviewInput,
 } from '@contracts/index';
 
 /* ---------- public catalog ---------- */
@@ -57,6 +62,44 @@ export const getRelatedProducts = (slug: string, limit = 4) =>
   );
 
 export const getSettings = () => http<StoreSettingsDTO>('/settings');
+
+/* ---------- reviews ---------- */
+
+export type ReviewSort = 'newest' | 'highest' | 'lowest';
+
+export const getProductReviews = (slug: string, q: { limit?: number; offset?: number; sort?: ReviewSort } = {}) => {
+  const params = new URLSearchParams();
+  if (q.limit) params.set('limit', String(q.limit));
+  if (q.offset) params.set('offset', String(q.offset));
+  if (q.sort) params.set('sort', q.sort);
+  const qs = params.toString();
+  return http<ProductReviewsResponse>(`/products/${slug}/reviews${qs ? `?${qs}` : ''}`);
+};
+
+export const getRecentReviews = (limit = 3) =>
+  http<{ reviews: ReviewDTO[] }>(`/reviews/recent?limit=${limit}`).then((r) => r.reviews);
+
+export const getMyReview = (slug: string) =>
+  http<{ review: MyReviewDTO | null }>(`/products/${slug}/reviews/mine`).then((r) => r.review);
+
+export const putMyReview = (slug: string, input: ReviewInput) =>
+  http<{ review: MyReviewDTO }>(`/products/${slug}/reviews/mine`, { method: 'PUT', body: input }).then(
+    (r) => r.review,
+  );
+
+export const deleteMyReview = (slug: string) =>
+  http<void>(`/products/${slug}/reviews/mine`, { method: 'DELETE' });
+
+export const adminListReviews = (q: { status?: 'published' | 'hidden' } = {}) =>
+  http<{ reviews: AdminReviewDTO[]; total: number }>(
+    `/admin/reviews${q.status ? `?status=${q.status}` : ''}`,
+  );
+
+export const adminSetReviewStatus = (id: string, status: 'published' | 'hidden') =>
+  http<{ ok: boolean }>(`/admin/reviews/${id}`, { method: 'PATCH', body: { status } });
+
+export const adminDeleteReview = (id: string) =>
+  http<void>(`/admin/reviews/${id}`, { method: 'DELETE' });
 
 /* ---------- cart / checkout ---------- */
 

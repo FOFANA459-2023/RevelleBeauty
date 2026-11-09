@@ -27,6 +27,7 @@ const summary = {
   primaryImage: null,
   previewImageUrls: [],
   swatches,
+  rating: null,
 };
 
 const summary2 = {
@@ -131,6 +132,12 @@ export async function mockApi(page: Page): Promise<void> {
         removed: [],
       },
     }),
+  );
+
+  // No reviews until a test supplies some: the storefront must not invent any.
+  await page.route('**/api/reviews/recent*', (r) => r.fulfill({ json: { reviews: [] } }));
+  await page.route('**/api/products/*/reviews?*', (r) =>
+    r.fulfill({ json: { summary: null, reviews: [], total: 0 } }),
   );
 
   // Signed out by default — checkout must bounce to /login.
