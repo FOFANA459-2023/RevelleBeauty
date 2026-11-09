@@ -9,6 +9,10 @@ test.describe('home', () => {
   test('renders the hero, nav, and featured products', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Be Revelle');
+    // On a phone the primary nav lives behind the menu button; reach it the way
+    // a shopper would rather than asserting the desktop bar.
+    const menu = page.getByRole('button', { name: 'Open menu' });
+    if (await menu.isVisible()) await menu.click();
     await expect(page.getByRole('navigation', { name: 'Primary' }).first()).toBeVisible();
     await expect(page.getByText('High Shine Lip Oil').first()).toBeVisible();
     await expect(page.getByText('COMPLIMENTARY SHIPPING ON ORDERS OVER $50').first()).toBeVisible();
