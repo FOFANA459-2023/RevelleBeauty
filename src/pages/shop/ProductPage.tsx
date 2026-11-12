@@ -129,7 +129,12 @@ export function ProductPage() {
       <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 mt-8">
         {/* ---------- gallery ---------- */}
         <div className="lg:col-span-7 min-w-0">
-          <div className="lg:sticky lg:top-24">
+          {/* The square is sized by the screen's height as well as its width:
+              on a laptop a full-column square was taller than the window, so
+              the photo filled it and the thumbnails sat below the fold.
+              Capped, photo + thumbnails fit in one view; the 18rem floor
+              keeps a phone held sideways from shrinking it to a stamp. */}
+          <div className="lg:sticky lg:top-24 mx-auto w-full max-w-[min(100%,max(18rem,calc(100svh-19rem)))]">
             {galleryImages.length > 0 ? (
               <ProductGallery
                 key={selected?.id ?? 'product'}
