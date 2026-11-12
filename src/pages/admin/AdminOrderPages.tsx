@@ -17,6 +17,7 @@ const PIPELINE: { stage: FulfillmentStage; label: string }[] = [
 ];
 
 const STATUS_BADGE: Record<string, string> = {
+  preorder: 'border-gold-700 text-ink bg-gold-50',
   paid: 'border-gold-500 text-ink bg-ivory',
   fulfilled: 'border-hairline text-ink-soft bg-porcelain',
   pending: 'border-hairline text-ink-muted bg-ivory-deep',
@@ -25,6 +26,12 @@ const STATUS_BADGE: Record<string, string> = {
   refunded: 'border-hairline text-ink-muted',
   expired: 'border-hairline text-ink-muted',
 };
+
+/** Digits for a wa.me link, if the number is long enough to be international. */
+function waDigits(phone: string): string | null {
+  const d = phone.replace(/\D/g, '');
+  return d.length >= 8 && d.length <= 15 ? d : null;
+}
 
 function StatusBadge({ status }: { status: string }) {
   return (
@@ -65,7 +72,7 @@ export function AdminOrderListPage() {
           className="bg-porcelain border border-hairline rounded-md px-3 py-2 text-[14px]"
         >
           <option value="">All statuses</option>
-          {['paid', 'fulfilled', 'needs_review', 'pending', 'cancelled', 'refunded', 'expired'].map((s) => (
+          {['preorder', 'paid', 'fulfilled', 'needs_review', 'pending', 'cancelled', 'refunded', 'expired'].map((s) => (
             <option key={s} value={s}>{s.replace('_', ' ')}</option>
           ))}
         </select>
@@ -263,6 +270,12 @@ export function AdminOrderDetailPage() {
             )}
 
             <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide mb-3">Order status</h2>
+            {order.status === 'preorder' && (
+              <p className="mb-3 text-[13px] text-ink-soft">
+                Pre-order: nothing has been charged. Once the customer has paid you, mark it
+                <strong> paid</strong> to record the payment and take the stock.
+              </p>
+            )}
             <div className="flex flex-wrap gap-2 mb-4">
               {(['paid', 'fulfilled', 'cancelled', 'refunded'] as OrderStatus[]).map((s) => (
                 <button
@@ -310,7 +323,30 @@ export function AdminOrderDetailPage() {
             <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide mb-3">Customer</h2>
             <p className="text-ink">{order.customerName ?? '—'}</p>
             <p className="text-[13px] text-ink-soft break-all">{order.email ?? '—'}</p>
-            {order.phone && <p className="text-[13px] text-ink-soft">{order.phone}</p>}
+            {order.phone && (
+              <p className="text-[13px] text-ink-soft">
+                {order.phone}
+                {waDigits(order.phone) && (
+                  <>
+                    {' · '}
+                    <a
+                      href={`https://wa.me/${waDigits(order.phone)}?text=${encodeURIComponent(`Hi, this is Revelle Beauty about your order ${order.orderNumber}.`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline underline-offset-2 text-ink"
+                    >
+                      WhatsApp
+                    </a>
+                  </>
+                )}
+              </p>
+            )}
+            {order.customerNote && (
+              <div className="mt-3 text-[13px]">
+                <p className="text-ink-muted uppercase tracking-wide text-[11px]">Customer note</p>
+                <p className="text-ink-soft whitespace-pre-line break-words">{order.customerNote}</p>
+              </div>
+            )}
             {order.shippingLine1 && (
               <address className="mt-3 not-italic text-[13px] text-ink-soft leading-relaxed">
                 {order.shippingName}<br />

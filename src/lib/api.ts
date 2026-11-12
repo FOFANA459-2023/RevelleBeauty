@@ -34,6 +34,8 @@ import type {
   ProductReviewsResponse,
   ReviewDTO,
   ReviewInput,
+  PreorderBody,
+  PreorderResponse,
 } from '@contracts/index';
 
 /* ---------- public catalog ---------- */
@@ -115,6 +117,10 @@ export const createCheckoutSession = (
     method: 'POST',
     body: { items, shipping, saveAsDefault },
   });
+
+/** Pre-order: the order is placed and the store notified; nothing is charged. */
+export const placePreorder = (body: PreorderBody) =>
+  http<PreorderResponse>('/checkout/preorder', { method: 'POST', body });
 
 /* ---------- customer auth + account ---------- */
 
