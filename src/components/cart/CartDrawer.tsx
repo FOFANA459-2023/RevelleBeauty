@@ -103,7 +103,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                   <Link
                     to={`/product/${line.productSlug}`}
                     onClick={onClose}
-                    className="w-20 h-24 bg-ivory-deep rounded-xs shrink-0 grid place-items-center overflow-hidden"
+                    className="w-20 h-20 bg-white border border-hairline rounded-xs shrink-0 grid place-items-center overflow-hidden"
                   >
                     {line.imageUrl ? (
                       <img src={line.imageUrl} alt="" className="h-full w-full object-contain" />

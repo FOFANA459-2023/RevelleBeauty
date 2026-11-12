@@ -71,7 +71,7 @@ export function CartPage() {
             <li key={line.variantId} className="py-6 flex gap-5">
               <Link
                 to={`/product/${line.productSlug}`}
-                className="w-24 h-30 sm:w-28 sm:h-36 bg-ivory-deep rounded-xs shrink-0 grid place-items-center overflow-hidden"
+                className="w-24 h-24 sm:w-28 sm:h-28 bg-white border border-hairline rounded-xs shrink-0 grid place-items-center overflow-hidden"
               >
                 {line.imageUrl ? (
                   <img src={line.imageUrl} alt="" className="h-full w-full object-contain" />
