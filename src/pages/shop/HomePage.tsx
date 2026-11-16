@@ -16,16 +16,23 @@ import { cn } from '@/lib/cn';
 import campaignImage from '@/assets/revelle-campaign.jpg';
 import logoImage from '@/assets/logo.jpg';
 
-const MARQUEE_ITEMS = [
+/** "$30" for whole dollars, "$29.50" otherwise. */
+const shortMoney = (cents: number) => (cents % 100 === 0 ? `$${cents / 100}` : formatCents(cents));
+
+// The free-shipping amount comes from the store settings, so it is only ever
+// changed in one place; without a threshold the shipping lines are dropped.
+const marqueeItems = (freeShippingCents: number | null | undefined) => [
   'Be you. Be bold. Be Revelle.',
-  'Free shipping over $50',
+  ...(freeShippingCents != null ? [`Free shipping over ${shortMoney(freeShippingCents)}`] : []),
   'Clean formulas',
   'Cruelty free',
   'The shade is the star',
 ];
 
-const VALUE_PROPS = [
-  { title: 'Complimentary shipping', body: 'On every order over $50 — no code needed.' },
+const valueProps = (freeShippingCents: number | null | undefined) => [
+  freeShippingCents != null
+    ? { title: 'Complimentary shipping', body: `On every order over ${shortMoney(freeShippingCents)} — no code needed.` }
+    : { title: 'Fast shipping', body: 'Packed with care and on its way in days.' },
   { title: 'Clean formulas', body: 'Nourishing ingredients, nothing your lips do not need.' },
   { title: 'Cruelty free', body: 'Never tested on animals. Ever.' },
   { title: 'Shade-first design', body: 'Every product built around the color it carries.' },
@@ -129,7 +136,7 @@ export function HomePage() {
         <div className="marquee-track">
           {[0, 1].map((copy) => (
             <span key={copy} className="inline-flex items-center">
-              {MARQUEE_ITEMS.map((item) => (
+              {marqueeItems(settings?.freeShippingThresholdCents).map((item) => (
                 <span key={item} className="inline-flex items-center">
                   <span className="eyebrow text-ink-soft px-6">{item}</span>
                   <Sparkle size={10} className="text-gold-500" />
@@ -473,7 +480,7 @@ export function HomePage() {
       <section className="mt-section">
         <div className="mx-auto max-w-[1440px] px-gutter">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {VALUE_PROPS.map((v, i) => (
+            {valueProps(settings?.freeShippingThresholdCents).map((v, i) => (
               <div
                 key={v.title}
                 className="border border-hairline rounded-sm bg-porcelain p-6 text-center"
