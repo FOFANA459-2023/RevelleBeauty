@@ -200,7 +200,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [ci-ok]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    # Explicit gate check: GitHub's implicit success() also fails when a job
+    # further up the chain was skipped (dependency-review is, on pushes).
+    if: >-
+      !cancelled() && needs.ci-ok.result == 'success' &&
+      github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     environment:
       name: production
       url: ${{ env.SITE_URL }}
