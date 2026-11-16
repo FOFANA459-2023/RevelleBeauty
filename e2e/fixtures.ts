@@ -74,8 +74,6 @@ export async function mockApi(page: Page): Promise<void> {
         announcement: 'COMPLIMENTARY SHIPPING ON ORDERS OVER $50',
         checkoutEnabled: true,
         allowedShippingCountries: ['US'],
-        checkoutMode: 'preorder',
-        storeWhatsapp: '15550100000',
       },
     }),
   );

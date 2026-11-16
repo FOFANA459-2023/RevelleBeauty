@@ -301,7 +301,7 @@ export function AccountOrdersPage() {
                       : 'border-gold-500 text-gold-950 bg-ivory',
                   )}
                 >
-                  {o.status === 'preorder' ? 'Pre-order received' : STAGE_LABEL[o.fulfillmentStage]}
+                  {STAGE_LABEL[o.fulfillmentStage]}
                 </span>
                 <span className="tabular text-ink">{formatCents(o.totalCents)}</span>
               </Link>

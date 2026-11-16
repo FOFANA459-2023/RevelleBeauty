@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router';
+import { Link, Navigate } from 'react-router';
 import { useCustomer } from '@/features/auth/useCustomer';
 import { useCart, selectSubtotalCents } from '@/features/cart/cartStore';
 import { useSettings } from '@/features/catalog/useCatalog';
-import { createCheckoutSession, placePreorder } from '@/lib/api';
+import { createCheckoutSession } from '@/lib/api';
 import { ApiError } from '@/lib/http';
 import { Button } from '@/components/ui/Button';
 import { GoldRule } from '@/components/brand/GoldRule';
@@ -13,15 +13,7 @@ const inputCls =
   'mt-1.5 w-full bg-porcelain border border-hairline rounded-xs px-4 py-3 text-sm text-ink';
 const labelText = 'eyebrow text-ink-muted';
 
-const NOTE_MAX = 500;
-
-/**
- * Login-gated checkout: email from the session, address collected here.
- *
- * Two modes, chosen by the server: 'payment' hands off to Stripe; 'preorder'
- * places the order on the spot with nothing charged, and the store follows
- * up on WhatsApp or email to arrange payment and delivery.
- */
+/** Login-gated checkout: email from the session, address collected here, payment on Stripe. */
 export function CheckoutPage() {
   const { data: me, isPending: authPending, isError: authError } = useCustomer();
   const lines = useCart((s) => s.lines);
@@ -32,9 +24,6 @@ export function CheckoutPage() {
     name: '', phone: '', line1: '', line2: '', city: '', state: '', postalCode: '', country: 'US',
   });
   const [saveAsDefault, setSaveAsDefault] = useState(true);
-  const [note, setNote] = useState('');
-  const navigate = useNavigate();
-  const preorder = settings?.checkoutMode === 'preorder';
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,19 +65,6 @@ export function CheckoutPage() {
     setSubmitting(true);
     setError(null);
     try {
-      if (preorder) {
-        const placed = await placePreorder({
-          items: lines.map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
-          shipping: { ...form, line2: form.line2 || null },
-          saveAsDefault,
-          note: note.trim() || null,
-        });
-        // The confirmation page empties the bag once it has the order. Doing it
-        // here re-rendered this page with an empty bag first, and its
-        // empty-bag redirect sent the shopper to /cart instead.
-        navigate(`/checkout/success?session_id=${encodeURIComponent(placed.reference)}`, { replace: true });
-        return;
-      }
       const session = await createCheckoutSession(
         lines.map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
         { ...form, line2: form.line2 || null },
@@ -99,7 +75,7 @@ export function CheckoutPage() {
       if (err instanceof ApiError && err.code === 'cart_invalid') {
         setError('Your bag changed while you were away — please review it and try again.');
       } else {
-        setError(err instanceof Error ? err.message : preorder ? 'Could not place your pre-order' : 'Could not start checkout');
+        setError(err instanceof Error ? err.message : 'Could not start checkout');
       }
       setSubmitting(false);
     }
@@ -108,18 +84,8 @@ export function CheckoutPage() {
   return (
     <div className="mx-auto max-w-5xl px-gutter py-12">
       <Link to="/cart" className="eyebrow text-ink-muted link-ink">← Back to bag</Link>
-      <h1 className="display text-display-2 text-ink mt-4">{preorder ? 'Pre-order' : 'Checkout'}</h1>
+      <h1 className="display text-display-2 text-ink mt-4">Checkout</h1>
       <GoldRule className="mt-6 mb-10" />
-      {preorder && (
-        <div className="mb-10 bg-porcelain border border-gold-500/50 rounded-sm p-5 sm:p-6 max-w-3xl">
-          <p className="eyebrow text-gold-950">How pre-ordering works</p>
-          <ol className="mt-3 space-y-1.5 text-sm text-ink-soft list-decimal pl-5">
-            <li>Place your order below. <strong className="text-ink font-medium">Nothing is charged online.</strong></li>
-            <li>We confirm availability and contact you on WhatsApp or by email to arrange payment.</li>
-            <li>Once paid, we pack and ship your order. You can follow it in your account.</li>
-          </ol>
-        </div>
-      )}
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-12">
         <form onSubmit={submit} className="space-y-8">
@@ -132,15 +98,10 @@ export function CheckoutPage() {
                   className={`${inputCls} bg-ivory-deep text-ink-muted cursor-not-allowed`} />
               </label>
               <label>
-                <span className={labelText}>{preorder ? 'Phone / WhatsApp *' : 'Phone *'}</span>
+                <span className={labelText}>Phone *</span>
                 <input type="tel" required autoComplete="tel" value={form.phone}
                   placeholder="+1 555 123 4567"
                   onChange={set('phone')} className={inputCls} />
-                {preorder && (
-                  <span className="mt-1 block text-xs text-ink-muted">
-                    Include your country code; we'll message you here about your order.
-                  </span>
-                )}
               </label>
             </div>
           </section>
@@ -210,39 +171,17 @@ export function CheckoutPage() {
             </label>
           </section>
 
-          {preorder && (
-            <section>
-              <h2 className="eyebrow text-ink mb-5">Note (optional)</h2>
-              <label className="block">
-                <span className="sr-only">Note for the store</span>
-                <textarea
-                  value={note}
-                  maxLength={NOTE_MAX}
-                  rows={3}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Gift wrapping, delivery instructions, the best time to reach you…"
-                  className={`${inputCls} resize-y`}
-                />
-                <span className="mt-1 block text-right text-xs text-ink-muted tabular">
-                  {note.length}/{NOTE_MAX}
-                </span>
-              </label>
-            </section>
-          )}
-
           {error && (
             <p className="text-sm text-ink border border-hairline bg-ivory rounded-xs p-4">{error}</p>
           )}
 
           <Button variant="metal" size="lg" className="w-full sm:w-auto" loading={submitting} type="submit">
-            {preorder
-              ? `Place pre-order — ${formatCents(subtotal + shippingCents)}`
-              : `Continue to payment — ${formatCents(subtotal + shippingCents)}`}
+            Continue to payment — {formatCents(subtotal + shippingCents)}
           </Button>
         </form>
 
         <aside className="lg:sticky lg:top-24 self-start bg-porcelain border border-hairline rounded-sm p-6">
-          <h2 className="eyebrow text-ink mb-4">{preorder ? 'Your pre-order' : 'Order summary'}</h2>
+          <h2 className="eyebrow text-ink mb-4">Order summary</h2>
           <ul className="divide-y divide-hairline">
             {lines.map((l) => (
               <li key={l.variantId} className="py-3 flex items-center gap-3">

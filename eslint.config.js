@@ -9,6 +9,7 @@ export default tseslint.config(
       'playwright-report/**',
       'test-results/**',
       'public/**',
+      '.wrangler/**',
     ],
   },
   ...tseslint.configs.recommended,

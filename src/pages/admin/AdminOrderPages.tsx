@@ -17,7 +17,6 @@ const PIPELINE: { stage: FulfillmentStage; label: string }[] = [
 ];
 
 const STATUS_BADGE: Record<string, string> = {
-  preorder: 'border-gold-700 text-ink bg-gold-50',
   paid: 'border-gold-500 text-ink bg-ivory',
   fulfilled: 'border-hairline text-ink-soft bg-porcelain',
   pending: 'border-hairline text-ink-muted bg-ivory-deep',
@@ -72,7 +71,7 @@ export function AdminOrderListPage() {
           className="bg-porcelain border border-hairline rounded-md px-3 py-2 text-[14px]"
         >
           <option value="">All statuses</option>
-          {['preorder', 'paid', 'fulfilled', 'needs_review', 'pending', 'cancelled', 'refunded', 'expired'].map((s) => (
+          {['paid', 'fulfilled', 'needs_review', 'pending', 'cancelled', 'refunded', 'expired'].map((s) => (
             <option key={s} value={s}>{s.replace('_', ' ')}</option>
           ))}
         </select>
@@ -237,7 +236,10 @@ export function AdminOrderDetailPage() {
                 ✕ {saveError}
               </p>
             )}
-            <div className="mb-3" />
+            <p className="mb-4 text-[12px] text-ink-muted">
+              The customer is emailed when you mark the order Packaged, Shipped or Delivered.
+              Save the tracking number first, and the shipping email includes it.
+            </p>
 
             {/* timeline incl. customer delivery confirmations */}
             {order.events.length > 0 && (
@@ -270,12 +272,6 @@ export function AdminOrderDetailPage() {
             )}
 
             <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide mb-3">Order status</h2>
-            {order.status === 'preorder' && (
-              <p className="mb-3 text-[13px] text-ink-soft">
-                Pre-order: nothing has been charged. Once the customer has paid you, mark it
-                <strong> paid</strong> to record the payment and take the stock.
-              </p>
-            )}
             <div className="flex flex-wrap gap-2 mb-4">
               {(['paid', 'fulfilled', 'cancelled', 'refunded'] as OrderStatus[]).map((s) => (
                 <button
@@ -340,12 +336,6 @@ export function AdminOrderDetailPage() {
                   </>
                 )}
               </p>
-            )}
-            {order.customerNote && (
-              <div className="mt-3 text-[13px]">
-                <p className="text-ink-muted uppercase tracking-wide text-[11px]">Customer note</p>
-                <p className="text-ink-soft whitespace-pre-line break-words">{order.customerNote}</p>
-              </div>
             )}
             {order.shippingLine1 && (
               <address className="mt-3 not-italic text-[13px] text-ink-soft leading-relaxed">

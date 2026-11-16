@@ -8,14 +8,12 @@ import { ShadeSwatch } from '@/components/shade/ShadeSwatch';
 import { GoldRule } from '@/components/brand/GoldRule';
 import { Sparkle } from '@/components/brand/Sparkle';
 import { formatCents } from '@/lib/money';
-import { useSettings } from '@/features/catalog/useCatalog';
 import { Button } from '@/components/ui/Button';
 
 export function CheckoutSuccessPage() {
   const [params] = useSearchParams();
   const sessionId = params.get('session_id') ?? '';
   const clearedRef = useRef(false);
-  const { data: settings } = useSettings();
 
   // The redirect can beat the webhook: poll while 'processing' (2s, ~20s).
   const { data, isPending } = useQuery({
@@ -30,7 +28,7 @@ export function CheckoutSuccessPage() {
 
   // Clear the cart ONLY after the order is confirmed paid.
   useEffect(() => {
-    if ((data?.status === 'paid' || data?.status === 'preorder') && !clearedRef.current) {
+    if (data?.status === 'paid' && !clearedRef.current) {
       clearedRef.current = true;
       useCart.getState().clear();
     }
@@ -64,40 +62,21 @@ export function CheckoutSuccessPage() {
   }
 
   const order = data.order;
-  const isPreorder = data.status === 'preorder';
-  const chat = settings?.storeWhatsapp
-    ? `https://wa.me/${settings.storeWhatsapp}?text=${encodeURIComponent(`Hi Revelle Beauty, I placed pre-order ${order.orderNumber}.`)}`
-    : null;
 
   return (
     <div className="mx-auto max-w-2xl px-gutter py-16">
       <div className="text-center">
         <Sparkle size={28} className="text-gold-500" />
-        <p className="eyebrow text-gold-950 mt-6">{isPreorder ? 'Pre-order' : 'Order'} {order.orderNumber}</p>
+        <p className="eyebrow text-gold-950 mt-6">Order {order.orderNumber}</p>
         <h1 className="display text-display-2 text-ink mt-4">Thank you.</h1>
-        {isPreorder ? (
-          <>
-            <p className="mt-4 text-body text-ink-soft">
-              Your pre-order is in, and nothing has been charged. We'll contact you on WhatsApp
-              or by email shortly to confirm availability and arrange payment and delivery.
-              {order.email ? ` A copy is on its way to ${order.email}.` : ''}
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              {chat && (
-                <a href={chat} target="_blank" rel="noreferrer">
-                  <Button variant="metal">Message us on WhatsApp</Button>
-                </a>
-              )}
-              <Link to="/account/orders">
-                <Button variant="outline">View my orders</Button>
-              </Link>
-            </div>
-          </>
-        ) : (
-          <p className="mt-4 text-body text-ink-soft">
-            Your order is confirmed{order.email ? ` — a receipt is on its way to ${order.email}` : ''}.
-          </p>
-        )}
+        <p className="mt-4 text-body text-ink-soft">
+          Your order is confirmed{order.email ? ` — a receipt is on its way to ${order.email}` : ''}.
+        </p>
+        <div className="mt-8 flex justify-center">
+          <Link to="/account/orders">
+            <Button variant="outline">View my orders</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="mt-12 bg-porcelain border border-hairline rounded-sm p-6 sm:p-8">
