@@ -17,3 +17,7 @@ test-results/
 *.log
 .DS_Store
 Thumbs.db
+
+# wrangler local secrets
+.dev.vars
+.dev.vars.*
