@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { GoldRule } from '@/components/brand/GoldRule';
 import { Sparkle } from '@/components/brand/Sparkle';
+import { BUSINESS, whatsappLink } from '@/lib/business';
 import campaignImage from '@/assets/revelle-campaign.jpg';
 
 export function AboutPage() {
@@ -45,8 +46,19 @@ export function ContactPage() {
       <div className="mt-12 space-y-8">
         <div>
           <p className="eyebrow text-ink-muted">Customer care</p>
-          <a href="mailto:hello@revellebeauty.com" className="mt-2 inline-block text-body-lg text-ink link-ink">
-            hello@revellebeauty.com
+          <a href={`mailto:${BUSINESS.email}`} className="mt-2 inline-block text-body-lg text-ink link-ink">
+            {BUSINESS.email}
+          </a>
+        </div>
+        <div>
+          <p className="eyebrow text-ink-muted">WhatsApp</p>
+          <a
+            href={whatsappLink('Hi Revelle Beauty!')}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-block text-body-lg text-ink link-ink"
+          >
+            {BUSINESS.whatsappDisplay}
           </a>
         </div>
         <div>
