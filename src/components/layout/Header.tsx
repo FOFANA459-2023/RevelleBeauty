@@ -11,11 +11,14 @@ import {
 import type { FulfillmentStage } from '@contracts/index';
 import { cn } from '@/lib/cn';
 import logo from '@/assets/logo.jpg';
+import { useCategories } from '@/features/catalog/useCatalog';
+import { hasProducts } from '@/features/catalog/visibleCategories';
 
-const NAV = [
+// `category` links appear only while that category has products on sale.
+const NAV: { to: string; label: string; category?: string }[] = [
   { to: '/shop', label: 'Shop' },
   { to: '/shop/lips', label: 'Lips' },
-  { to: '/shop/skincare', label: 'Skincare' },
+  { to: '/shop/skincare', label: 'Skincare', category: 'skincare' },
   { to: '/contact', label: 'Contact' },
 ];
 
@@ -29,6 +32,8 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const itemCount = useCart(selectItemCount);
+  const { data: categories } = useCategories();
+  const nav = NAV.filter((n) => !n.category || hasProducts(categories, n.category));
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -50,7 +55,7 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
         <div className="mx-auto max-w-[1440px] px-gutter grid grid-cols-[1fr_auto_1fr] items-center h-16 sm:h-20">
           {/* left: nav (desktop) / hamburger (mobile) */}
           <nav className="hidden lg:flex items-center gap-8" aria-label="Primary">
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}
@@ -123,7 +128,7 @@ export function Header({ onOpenCart }: { onOpenCart: () => void }) {
             aria-label="Primary"
             className="lg:hidden bg-porcelain border-b border-hairline px-gutter py-4 space-y-1"
           >
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}

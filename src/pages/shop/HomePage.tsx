@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import type { ProductSummaryDTO } from '@contracts/index';
-import { useProducts, useSettings } from '@/features/catalog/useCatalog';
+import { useCategories, useProducts, useSettings } from '@/features/catalog/useCatalog';
+import { hasProducts } from '@/features/catalog/visibleCategories';
 import { useRecentReviews } from '@/features/reviews/useReviews';
 import { Stars } from '@/components/review/Stars';
 import { ProductGrid } from '@/components/product/ProductGrid';
@@ -62,6 +63,8 @@ export function HomePage() {
   const { data: lips, isPending: lipsPending } = useProducts({ category: 'lips', limit: 24 });
   const { data: newest, isPending: newestPending } = useProducts({ sort: 'newest', limit: 16 });
   const { data: settings } = useSettings();
+  const { data: categories } = useCategories();
+  const showSkincare = hasProducts(categories, 'skincare');
   const { data: recentReviews } = useRecentReviews(3);
   const [tab, setTab] = useState<ShelfTab>('bestsellers');
 
@@ -149,10 +152,14 @@ export function HomePage() {
 
       {/* ============ 3. CATEGORY TILES ============ */}
       <section className="mx-auto max-w-[1440px] px-gutter mt-16 lg:mt-24">
-        <div className="grid sm:grid-cols-2 gap-5">
+        <div className={cn('grid gap-5', showSkincare && 'sm:grid-cols-2')}>
           <Link
             to="/shop/lips"
-            className="group relative rounded-xs overflow-hidden aspect-[16/10] block"
+            className={cn(
+              'group relative rounded-xs overflow-hidden block',
+              // Alone (no other line on sale yet), the tile goes wide rather than tall.
+              showSkincare ? 'aspect-[16/10]' : 'aspect-[16/10] sm:aspect-[21/8]',
+            )}
             data-reveal="still"
           >
             <img
@@ -182,6 +189,7 @@ export function HomePage() {
             </span>
           </Link>
 
+          {showSkincare && (
           <Link
             to="/shop/skincare"
             className="group relative rounded-xs overflow-hidden aspect-[16/10] block bg-ivory-deep"
@@ -214,6 +222,7 @@ export function HomePage() {
               </span>
             </span>
           </Link>
+          )}
         </div>
       </section>
 

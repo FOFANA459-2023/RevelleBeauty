@@ -156,7 +156,7 @@ export function CategoryPage() {
               className="bg-porcelain border border-hairline rounded-xs px-3.5 py-2.5 text-sm text-ink cursor-pointer"
             >
               <option value="">All categories</option>
-              {categories?.map((c: CategoryDTO) => (
+              {categories?.filter((c: CategoryDTO) => c.productCount > 0).map((c: CategoryDTO) => (
                 <option key={c.id} value={c.slug}>{c.name}</option>
               ))}
             </select>
